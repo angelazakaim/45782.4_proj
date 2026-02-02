@@ -1,0 +1,98 @@
+/* ── Card shell ──────────────────────────────────────────────────── */
+.OrderCard {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding: 16px;
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    cursor: pointer;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.OrderCard:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.13);
+}
+
+/* ── Top row: number + status badge ──────────────────────────────── */
+.order-card-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.order-card-number {
+    font-weight: 700;
+    color: #333;
+    font-size: 15px;
+}
+
+.order-card-status {
+    font-size: 12px;
+    font-weight: 600;
+    padding: 3px 10px;
+    border-radius: 20px;
+    text-transform: capitalize;
+}
+
+/* status colours — shared with OrderDetails */
+.status-pending    { background: #fff3cd; color: #856404; }
+.status-confirmed  { background: #cce5ff; color: #004085; }
+.status-processing { background: #d1ecf1; color: #0c5460; }
+.status-shipped    { background: #d4edda; color: #155724; }
+.status-delivered  { background: #d4edda; color: #155724; }
+.status-cancelled  { background: #f8d7da; color: #721c24; }
+.status-refunded   { background: #e2e3e5; color: #383d41; }
+
+/* ── Customer row (admin view only) ──────────────────────────────── */
+.order-card-customer {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.order-card-cust-name {
+    font-size: 13px;
+    color: #555;
+}
+
+.order-card-cust-email {
+    font-size: 12px;
+    color: #999;
+    padding-left: 20px; /* indent under the emoji */
+}
+
+/* ── Meta row: date + item count ─────────────────────────────────── */
+.order-card-meta {
+    display: flex;
+    justify-content: space-between;
+    font-size: 13px;
+    color: #999;
+}
+
+/* ── Footer: total + arrow ───────────────────────────────────────── */
+.order-card-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-top: 10px;
+    border-top: 1px solid #eee;
+}
+
+.order-card-total {
+    font-size: 17px;
+    font-weight: 700;
+    color: #333;
+}
+
+.order-card-arrow {
+    color: #bbb;
+    font-size: 18px;
+    transition: color 0.2s;
+}
+
+.OrderCard:hover .order-card-arrow {
+    color: #4CAF50;
+}

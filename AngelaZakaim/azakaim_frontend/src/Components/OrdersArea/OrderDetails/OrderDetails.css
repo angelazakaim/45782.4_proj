@@ -1,0 +1,322 @@
+/* ── Page shell ──────────────────────────────────────────────────── */
+.OrderDetails {
+    max-width: 750px;
+    margin: 30px auto;
+    padding: 0 20px;
+}
+
+/* ── Header: order number + status ───────────────────────────────── */
+.od-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 6px;
+}
+
+.od-header h2 {
+    margin: 0;
+    color: #333;
+    font-size: 22px;
+}
+
+.od-date {
+    margin: 4px 0 0;
+    color: #999;
+    font-size: 13px;
+}
+
+.od-status {
+    font-size: 13px;
+    font-weight: 600;
+    padding: 4px 14px;
+    border-radius: 20px;
+    text-transform: capitalize;
+}
+
+/* status colours */
+.status-pending    { background: #fff3cd; color: #856404; }
+.status-confirmed  { background: #cce5ff; color: #004085; }
+.status-processing { background: #d1ecf1; color: #0c5460; }
+.status-shipped    { background: #d4edda; color: #155724; }
+.status-delivered  { background: #d4edda; color: #155724; }
+.status-cancelled  { background: #f8d7da; color: #721c24; }
+.status-refunded   { background: #e2e3e5; color: #383d41; }
+
+/* ── Action buttons row ──────────────────────────────────────────── */
+.od-actions {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 22px;
+}
+
+.od-back-btn {
+    background: none;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    color: #555;
+    font-size: 14px;
+    padding: 8px 16px;
+    cursor: pointer;
+    transition: border-color 0.2s, color 0.2s;
+}
+
+.od-back-btn:hover { border-color: #4CAF50; color: #4CAF50; }
+
+.od-cancel-btn {
+    background: none;
+    border: 1px solid #e74c3c;
+    border-radius: 5px;
+    color: #e74c3c;
+    font-size: 14px;
+    padding: 8px 16px;
+    cursor: pointer;
+    transition: background-color 0.2s, color 0.2s;
+}
+
+.od-cancel-btn:hover { background-color: #e74c3c; color: white; }
+
+/* ── Generic section card ────────────────────────────────────────── */
+.od-section {
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    padding: 20px;
+    margin-bottom: 14px;
+}
+
+.od-section h3 {
+    margin: 0 0 14px;
+    color: #333;
+    font-size: 15px;
+    font-weight: 600;
+}
+
+/* ── Customer info ───────────────────────────────────────────────── */
+.od-customer-name {
+    margin: 0 0 3px;
+    font-size: 15px;
+    color: #333;
+    font-weight: 500;
+}
+
+.od-customer-email {
+    margin: 0;
+    font-size: 13px;
+    color: #888;
+}
+
+/* ── Items list ──────────────────────────────────────────────────── */
+.od-items { display: flex; flex-direction: column; gap: 12px; }
+
+.od-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-bottom: 12px;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.od-item:last-child { border-bottom: none; padding-bottom: 0; }
+
+.od-item-info { display: flex; flex-direction: column; gap: 2px; }
+
+.od-item-name  { font-size: 14px; color: #333; font-weight: 500; }
+.od-item-sku   { font-size: 12px; color: #999; }
+
+.od-item-pricing {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    font-size: 14px;
+    color: #666;
+}
+
+.od-item-total {
+    font-weight: 600;
+    color: #333;
+    min-width: 68px;
+    text-align: right;
+}
+
+/* ── Pricing summary rows ────────────────────────────────────────── */
+.od-pricing-row {
+    display: flex;
+    justify-content: space-between;
+    font-size: 14px;
+    color: #666;
+    padding: 5px 0;
+}
+
+.od-pricing-total {
+    margin-top: 10px;
+    padding-top: 10px !important;
+    border-top: 2px solid #eee;
+    font-size: 17px !important;
+    font-weight: 700 !important;
+    color: #333 !important;
+}
+
+/* ── Address ─────────────────────────────────────────────────────── */
+.od-address {
+    margin: 0;
+    font-size: 14px;
+    color: #555;
+    line-height: 1.7;
+}
+
+/* ── Payment row ─────────────────────────────────────────────────── */
+.od-payment-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 14px;
+    color: #555;
+}
+
+.od-pay-badge {
+    font-size: 12px;
+    font-weight: 600;
+    padding: 3px 10px;
+    border-radius: 20px;
+    text-transform: capitalize;
+}
+
+/* ── Notes ───────────────────────────────────────────────────────── */
+.od-notes {
+    margin: 0;
+    font-size: 14px;
+    color: #555;
+    font-style: italic;
+    white-space: pre-wrap;
+}
+
+.od-notes-admin {
+    background: #fff3cd;
+    color: #856404;
+    padding: 10px 14px;
+    border-radius: 5px;
+    font-style: normal;
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   ADMIN ACTIONS PANEL
+   ═══════════════════════════════════════════════════════════════════ */
+.od-admin-panel {
+    background: #f8f9fa;
+    border: 1px dashed #dee2e6;
+}
+
+.od-admin-panel h3 { color: #495057; }
+
+/* each action row */
+.od-admin-row { margin-bottom: 18px; }
+.od-admin-row:last-of-type { margin-bottom: 0; }
+
+.od-admin-row label {
+    display: block;
+    font-size: 11px;
+    color: #888;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.6px;
+    margin-bottom: 6px;
+}
+
+/* select + button side by side */
+.od-admin-input-group {
+    display: flex;
+    gap: 8px;
+}
+
+.od-admin-input-group select {
+    flex: 1;
+    padding: 8px 10px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    font-size: 14px;
+    color: #333;
+    background: white;
+    cursor: pointer;
+}
+
+.od-admin-input-group select:focus { outline: none; border-color: #4CAF50; }
+
+/* note textarea + button stacked */
+.od-admin-note-group {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.od-admin-note-group textarea {
+    padding: 8px 10px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    font-size: 14px;
+    color: #333;
+    resize: vertical;
+    font-family: inherit;
+}
+
+.od-admin-note-group textarea:focus { outline: none; border-color: #4CAF50; }
+
+/* shared green action button */
+.od-admin-btn {
+    align-self: flex-start;
+    padding: 7px 18px;
+    background: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.2s, opacity 0.2s;
+}
+
+.od-admin-btn:hover   { background-color: #43a047; }
+.od-admin-btn:disabled { opacity: 0.45; cursor: not-allowed; }
+
+/* ── Danger zone (admin-only) ────────────────────────────────────── */
+.od-danger-zone {
+    display: flex;
+    gap: 10px;
+    margin-top: 20px;
+    padding-top: 16px;
+    border-top: 1px solid #dee2e6;
+}
+
+.od-btn-refund {
+    padding: 8px 18px;
+    background: none;
+    border: 1px solid #e67e22;
+    border-radius: 5px;
+    color: #e67e22;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.2s, color 0.2s;
+}
+
+.od-btn-refund:hover { background-color: #e67e22; color: white; }
+
+.od-btn-delete {
+    padding: 8px 18px;
+    background: none;
+    border: 1px solid #e74c3c;
+    border-radius: 5px;
+    color: #e74c3c;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.2s, color 0.2s;
+}
+
+.od-btn-delete:hover { background-color: #e74c3c; color: white; }
+
+/* ── Responsive ──────────────────────────────────────────────────── */
+@media (max-width: 500px) {
+    .od-header          { flex-direction: column; gap: 8px; }
+    .od-item            { flex-direction: column; align-items: flex-start; gap: 6px; }
+    .od-danger-zone     { flex-direction: column; }
+}

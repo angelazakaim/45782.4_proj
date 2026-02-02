@@ -1,0 +1,193 @@
+/* Products.css */
+
+.ProductsContainer {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+.ProductsContainer header {
+    margin-bottom: 30px;
+    padding-bottom: 15px;
+    border-bottom: 2px solid #e0e0e0;
+    text-align: center;
+}
+
+.ProductsContainer header h2 {
+    margin: 0 0 15px 0;
+    color: #333;
+}
+
+.ProductsContainer header p {
+    margin: 10px 0 0 0;
+    color: #666;
+    font-size: 14px;
+}
+
+/* Add Product button */
+.header-actions {
+    margin-bottom: 15px;
+}
+
+.btn-add {
+    display: inline-block;
+    padding: 10px 24px;
+    background-color: #4CAF50;
+    color: white;
+    text-decoration: none;
+    border-radius: 5px;
+    font-size: 14px;
+    font-weight: 600;
+    transition: background-color 0.3s;
+}
+
+.btn-add:hover {
+    background-color: #45a049;
+    color: white;
+}
+
+/* Search Form */
+.search-form {
+    margin: 20px auto;
+    max-width: 800px;
+}
+
+.search-controls {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+.search-type-selector {
+    padding: 10px 15px;
+    border: 2px solid #ddd;
+    border-radius: 5px;
+    font-size: 14px;
+    background-color: white;
+    cursor: pointer;
+    min-width: 220px;
+}
+
+.search-input {
+    padding: 10px 15px;
+    border: 2px solid #ddd;
+    border-radius: 5px;
+    font-size: 14px;
+    flex: 1;
+    min-width: 200px;
+}
+
+.search-input:focus,
+.search-type-selector:focus {
+    outline: none;
+    border-color: #4CAF50;
+}
+
+.search-button,
+.clear-button {
+    padding: 10px 25px;
+    border: none;
+    border-radius: 5px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.search-button {
+    background-color: #4CAF50;
+    color: white;
+}
+
+.search-button:hover {
+    background-color: #45a049;
+}
+
+.clear-button {
+    background-color: #e0e0e0;
+    color: #333;
+}
+
+.clear-button:hover {
+    background-color: #d0d0d0;
+}
+
+.search-status {
+    margin: 15px 0;
+    padding: 10px;
+    background-color: #f0f8ff;
+    border-left: 4px solid #4CAF50;
+    border-radius: 4px;
+    font-size: 14px;
+    color: #333;
+    text-align: left;
+}
+
+/* Product Grid */
+.ProductGrid {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-start;
+    gap: 20px;
+    padding: 10px 0;
+}
+
+/* No results */
+.no-results {
+    padding: 60px 40px;
+    text-align: center;
+}
+
+.no-results p {
+    font-size: 18px;
+    color: #666;
+    margin-bottom: 20px;
+}
+
+.no-results button {
+    padding: 12px 30px;
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 15px;
+    font-weight: 600;
+    transition: background-color 0.3s;
+}
+
+.no-results button:hover {
+    background-color: #45a049;
+}
+
+.loading {
+    text-align: center;
+    padding: 60px;
+    font-size: 18px;
+    color: #666;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .ProductsContainer {
+        padding: 10px;
+    }
+
+    .search-controls {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .search-type-selector,
+    .search-input,
+    .search-button,
+    .clear-button {
+        width: 100%;
+    }
+
+    .ProductGrid {
+        justify-content: center;
+    }
+}

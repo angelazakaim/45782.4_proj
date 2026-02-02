@@ -1,0 +1,21 @@
+.UserCard {
+    width: 20%;
+    margin: 10px;
+    box-shadow: gray 4px 4px;
+    transition: transform, box-shadow 0.4s;
+    text-align: center;
+}
+
+.UserCard h3{
+    text-decoration: underline;
+}
+
+.UserCard:hover{
+    box-shadow: gray 8px 8px;
+    transform: translateY(-5px);
+}
+
+.UserCard a{
+    text-decoration: none;
+    color: black;
+}

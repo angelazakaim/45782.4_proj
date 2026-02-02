@@ -1,0 +1,15 @@
+.NavBar {
+	background-color: rgb(159, 212, 245);
+    display: flex;
+    justify-content: space-around;
+    padding-top: 10px;
+    /* sit below the Header so the cart dropdown paints on top */
+    position: relative;
+    z-index: 40;
+}
+.NavBar a {
+    text-decoration: none;
+}
+.NavBar a:hover {
+    transform: scale(110%);
+}

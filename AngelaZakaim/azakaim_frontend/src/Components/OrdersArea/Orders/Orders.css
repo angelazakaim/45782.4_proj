@@ -1,0 +1,208 @@
+/* ── Page shell ──────────────────────────────────────────────────── */
+.Orders {
+    max-width: 900px;
+    margin: 30px auto;
+    padding: 0 20px;
+}
+
+.Orders > h2 {
+    margin: 0 0 6px;
+    color: #333;
+    font-size: 22px;
+}
+
+.orders-subtitle {
+    margin: 0 0 20px;
+    color: #888;
+    font-size: 14px;
+}
+
+/* ── Filter panel ────────────────────────────────────────────────── */
+.orders-filters {
+    display: flex;
+    gap: 12px;
+    align-items: flex-end;
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    padding: 18px;
+    margin-bottom: 16px;
+    flex-wrap: wrap;
+}
+
+.orders-filter-group {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.orders-filter-group label {
+    font-size: 11px;
+    color: #888;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.6px;
+}
+
+.orders-filter-group input {
+    padding: 9px 12px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    font-size: 14px;
+    color: #333;
+    background: white;
+    transition: border-color 0.2s;
+}
+
+.orders-filter-group input:focus {
+    outline: none;
+    border-color: #4CAF50;
+}
+
+/* search input stretches to fill remaining space */
+.orders-filter-search {
+    flex: 1;
+    min-width: 220px;
+}
+
+/* date inputs have a fixed comfortable width */
+.orders-filter-date {
+    flex: 0 0 auto;
+    min-width: 155px;
+}
+
+.orders-clear-btn {
+    align-self: flex-end;
+    height: 36px;
+    padding: 0 18px;
+    background: none;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    color: #666;
+    font-size: 13px;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: border-color 0.2s, color 0.2s;
+}
+
+.orders-clear-btn:hover {
+    border-color: #e74c3c;
+    color: #e74c3c;
+}
+
+/* ── Status navigation tabs ──────────────────────────────────────── */
+.orders-status-tabs {
+    display: flex;
+    gap: 8px;
+    overflow-x: auto;
+    padding-bottom: 4px;
+    margin-bottom: 10px;
+    scrollbar-width: none; /* Firefox */
+}
+
+.orders-status-tabs::-webkit-scrollbar { display: none; }
+
+.orders-status-tabs button {
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 7px 14px;
+    background: white;
+    border: 1px solid #ddd;
+    border-radius: 20px;
+    font-size: 13px;
+    color: #666;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: all 0.2s;
+}
+
+.orders-status-tabs button:hover {
+    border-color: #4CAF50;
+    color: #4CAF50;
+}
+
+.orders-status-tabs button.active {
+    background: #4CAF50;
+    border-color: #4CAF50;
+    color: white;
+}
+
+/* little badge with the count */
+.tab-count {
+    background: rgba(0, 0, 0, 0.12);
+    font-size: 11px;
+    font-weight: 700;
+    padding: 1px 7px;
+    border-radius: 10px;
+}
+
+.orders-status-tabs button.active .tab-count {
+    background: rgba(255, 255, 255, 0.28);
+}
+
+/* ── Results info line ───────────────────────────────────────────── */
+.orders-results-info {
+    margin: 0 0 14px;
+    font-size: 13px;
+    color: #999;
+}
+
+/* ── Order list ──────────────────────────────────────────────────── */
+.orders-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+/* ── Empty state ─────────────────────────────────────────────────── */
+.orders-empty {
+    text-align: center;
+    padding: 55px 20px;
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.orders-empty-icon {
+    font-size: 44px;
+    margin: 0 0 12px;
+    display: block;
+}
+
+.orders-empty h3 {
+    margin: 0 0 6px;
+    color: #333;
+}
+
+.orders-empty p {
+    margin: 0;
+    color: #888;
+    font-size: 14px;
+}
+
+/* ── Loading ─────────────────────────────────────────────────────── */
+.orders-loading {
+    text-align: center;
+    padding: 60px 0;
+    color: #999;
+}
+
+/* ── Responsive ──────────────────────────────────────────────────── */
+@media (max-width: 620px) {
+    .orders-filters {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .orders-filter-search,
+    .orders-filter-date {
+        min-width: 100%;
+    }
+
+    .orders-clear-btn {
+        align-self: stretch;
+        text-align: center;
+    }
+}

@@ -1,0 +1,68 @@
+/* ProductCard.css */
+.ProductCard {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    width: calc(25% - 20px);
+    min-width: 200px;
+    padding: 20px;
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s, box-shadow 0.3s;
+    text-decoration: none;
+    color: inherit;
+}
+
+.ProductCard:hover {
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+    transform: translateY(-3px);
+}
+
+.ProductCard h3 {
+    margin: 0 0 8px 0;
+    color: #333;
+    font-size: 16px;
+}
+
+.ProductCard h4 {
+    margin: 4px 0;
+    color: #555;
+    font-size: 14px;
+    font-weight: 500;
+}
+
+/* Small thumbnail for product list */
+.ProductCard img {
+    width: 60px;
+    height: 60px;
+    object-fit: cover;
+    border-radius: 5px;
+    flex-shrink: 0;
+    background-color: #f5f5f5;
+}
+
+.ProductCard .sale {
+    text-decoration: line-through;
+    color: #999;
+    margin-right: 4px;
+}
+
+/* NavLink wrapper – remove default link styling */
+.ProductGrid a {
+    text-decoration: none;
+    color: inherit;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .ProductCard {
+        width: calc(50% - 20px);
+    }
+}
+
+@media (max-width: 480px) {
+    .ProductCard {
+        width: 100%;
+    }
+}

@@ -1,0 +1,197 @@
+/* EditProduct.css */
+.EditProduct {
+    max-width: 800px;
+    margin: 40px auto;
+    padding: 20px;
+}
+
+.EditProduct header {
+    margin-bottom: 30px;
+    padding-bottom: 15px;
+    border-bottom: 2px solid #e0e0e0;
+}
+
+.EditProduct h2 {
+    margin: 0;
+    color: #333;
+    font-weight: 500;
+}
+
+.EditProduct .product-form {
+    background: #ffffff;
+    padding: 40px;
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+}
+
+.EditProduct .form-group {
+    margin-bottom: 25px;
+}
+
+.EditProduct .form-group label {
+    display: block;
+    margin-bottom: 10px;
+    font-weight: 600;
+    color: #444;
+    font-size: 14px;
+}
+
+.EditProduct .required {
+    color: #e74c3c;
+}
+
+.EditProduct .form-group input:not([type="checkbox"]),
+.EditProduct .form-group select,
+.EditProduct .form-group textarea {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    font-size: 15px;
+    transition: border-color 0.2s;
+}
+
+.EditProduct .form-group input:focus {
+    outline: none;
+    border-color: #3498db;
+}
+
+/* ── Image Upload Area ────────────────────────────────────── */
+.EditProduct .image-upload-area {
+    width: 100%;
+    max-width: 350px;    /* Medium size for editing */
+    height: 300px;       /* Reasonable height */
+    border: 2px dashed #ccc;
+    border-radius: 10px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #f9f9f9;
+    overflow: hidden;
+    transition: all 0.3s ease;
+    position: relative;
+    margin: 0 auto;
+}
+
+.EditProduct .image-upload-area:hover {
+    border-color: #3498db;
+    background-color: #f0f7ff;
+}
+
+/* The Image itself */
+.EditProduct .image-preview {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+}
+
+.EditProduct .image-preview img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    padding: 15px;
+    background-color: #f5f5f5;
+}
+
+/* Remove image button */
+.EditProduct .remove-image-btn {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    background-color: #e74c3c;
+    color: white;
+    border: none;
+    font-size: 20px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background-color 0.2s;
+    z-index: 10;
+}
+
+.EditProduct .remove-image-btn:hover {
+    background-color: #c0392b;
+}
+
+/* Upload Placeholder */
+.EditProduct .upload-placeholder {
+    text-align: center;
+    color: #888;
+}
+
+.EditProduct .upload-icon {
+    font-size: 40px;
+    display: block;
+    margin-bottom: 10px;
+}
+
+/* ── Form Controls ──────────────────────────────────────────── */
+.EditProduct .checkbox-group label {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    cursor: pointer;
+    font-weight: normal;
+}
+
+.EditProduct .form-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 15px;
+    margin-top: 40px;
+    padding-top: 20px;
+    border-top: 1px solid #eee;
+}
+
+.EditProduct button {
+    padding: 12px 25px;
+    border-radius: 6px;
+    font-weight: 600;
+    cursor: pointer;
+    border: none;
+    transition: transform 0.1s, opacity 0.2s;
+}
+
+.EditProduct .btn-cancel {
+    background-color: #f1f2f6;
+    color: #2f3542;
+}
+
+.EditProduct .btn-submit {
+    background-color: #2ecc71;
+    color: white;
+}
+
+.EditProduct button:hover {
+    opacity: 0.9;
+}
+
+.EditProduct button:disabled {
+    background-color: #ccc;
+    cursor: not-allowed;
+    opacity: 0.6;
+}
+
+.EditProduct .error-message {
+    color: #e74c3c;
+    font-size: 12px;
+    margin-top: 5px;
+    display: block;
+}
+
+.EditProduct .fetch-error {
+    text-align: center;
+    padding: 40px;
+}
+
+.EditProduct .fetch-error button {
+    margin-top: 20px;
+}

@@ -1,0 +1,238 @@
+/* AddProduct.css */
+.AddProduct {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+.AddProduct header {
+    margin-bottom: 30px;
+    padding-bottom: 15px;
+    border-bottom: 2px solid #e0e0e0;
+}
+
+.AddProduct h2 {
+    margin: 0;
+    color: #333;
+}
+
+.AddProduct .product-form {
+    background: white;
+    padding: 30px;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.AddProduct .form-group {
+    margin-bottom: 25px;
+}
+
+.AddProduct .form-group label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 600;
+    color: #333;
+    font-size: 14px;
+}
+
+.AddProduct .required {
+    color: #f44336;
+}
+
+.AddProduct .form-group input[type="text"],
+.AddProduct .form-group input[type="number"],
+.AddProduct .form-group select,
+.AddProduct .form-group textarea {
+    width: 100%;
+    padding: 12px 15px;
+    border: 2px solid #ddd;
+    border-radius: 5px;
+    font-size: 14px;
+    font-family: inherit;
+    transition: border-color 0.3s;
+    box-sizing: border-box;
+}
+
+.AddProduct .form-group input:focus,
+.AddProduct .form-group select:focus,
+.AddProduct .form-group textarea:focus {
+    outline: none;
+    border-color: #4CAF50;
+}
+
+.AddProduct .form-group input.error,
+.AddProduct .form-group select.error,
+.AddProduct .form-group textarea.error {
+    border-color: #f44336;
+}
+
+.AddProduct .form-group textarea {
+    resize: vertical;
+    min-height: 100px;
+}
+
+.AddProduct .form-group small {
+    display: block;
+    margin-top: 5px;
+    font-size: 12px;
+    color: #999;
+}
+
+.AddProduct .error-message {
+    display: block;
+    color: #f44336;
+    font-size: 12px;
+    margin-top: 5px;
+}
+
+.AddProduct .form-actions {
+    display: flex;
+    gap: 15px;
+    margin-top: 30px;
+    padding-top: 20px;
+    border-top: 1px solid #e0e0e0;
+}
+
+.AddProduct .btn-cancel,
+.AddProduct .btn-submit {
+    flex: 1;
+    padding: 12px 30px;
+    border: none;
+    border-radius: 5px;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.AddProduct .btn-cancel {
+    background-color: #e0e0e0;
+    color: #333;
+}
+
+.AddProduct .btn-cancel:hover {
+    background-color: #d0d0d0;
+}
+
+.AddProduct .btn-submit {
+    background-color: #4CAF50;
+    color: white;
+}
+
+.AddProduct .btn-submit:hover:not(:disabled) {
+    background-color: #45a049;
+}
+
+.AddProduct .btn-submit:disabled {
+    background-color: #cccccc;
+    cursor: not-allowed;
+}
+
+/* =========================================================================
+   Image Upload
+   ========================================================================= */
+
+/* The outer clickable box */
+.AddProduct .image-upload-area {
+    border: 2px dashed #ddd;
+    border-radius: 8px;
+    padding: 24px;
+    min-height: 150px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    cursor: pointer;
+    background-color: #fafafa;
+    transition: border-color 0.3s, background-color 0.3s;
+}
+
+.AddProduct .image-upload-area:hover {
+    border-color: #4CAF50;
+    background-color: #f0fff0;
+}
+
+/* Placeholder shown when no image is set */
+.AddProduct .upload-placeholder {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    color: #888;
+}
+
+.AddProduct .upload-placeholder .upload-icon {
+    font-size: 30px;
+}
+
+.AddProduct .upload-placeholder p {
+    margin: 0;
+    font-size: 14px;
+    color: #666;
+}
+
+.AddProduct .upload-placeholder small {
+    margin: 0;
+    font-size: 12px;
+    color: #999;
+}
+
+/* Preview container (shown when an image was picked) */
+.AddProduct .image-preview {
+    position: relative;
+    display: inline-block;
+}
+
+.AddProduct .image-preview img {
+    max-width: 100%;
+    max-height: 200px;
+    object-fit: contain;
+    border-radius: 6px;
+}
+
+/* × button to remove the image */
+.AddProduct .remove-image-btn {
+    position: absolute;
+    top: -10px;
+    right: -10px;
+    width: 26px;
+    height: 26px;
+    border: none;
+    border-radius: 50%;
+    background-color: #e74c3c;
+    color: white;
+    font-size: 18px;
+    line-height: 1;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.25);
+    transition: background-color 0.2s;
+}
+
+.AddProduct .remove-image-btn:hover {
+    background-color: #c0392b;
+}
+
+/* =========================================================================
+   Responsive
+   ========================================================================= */
+@media (max-width: 768px) {
+    .AddProduct {
+        padding: 10px;
+    }
+
+    .AddProduct .product-form {
+        padding: 20px;
+    }
+
+    .AddProduct .form-actions {
+        flex-direction: column;
+    }
+
+    .AddProduct .btn-cancel,
+    .AddProduct .btn-submit {
+        width: 100%;
+    }
+}

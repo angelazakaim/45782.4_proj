@@ -1,0 +1,11 @@
+.Header {
+    background-color: var(--header-footer-bg-color);
+    display: flex;
+    justify-content: space-evenly;
+    align-items: center;
+    padding: 12px 20px;
+    /* let the cart dropdown escape the grid row */
+    position: relative;
+    z-index: 50;
+    overflow: visible;
+}
