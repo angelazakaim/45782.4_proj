@@ -21,8 +21,8 @@ class Config:
     DEFAULT_PAGE_SIZE = int(os.getenv('DEFAULT_PAGE_SIZE', 20))
     MAX_PAGE_SIZE = int(os.getenv('MAX_PAGE_SIZE', 100))
    
-    # File upload – Flask uses this to reject oversized requests before they
-    # hit your route handler.  5 MB is a safe default for product images.
+    # File upload - Flask uses this to reject oversized requests before they
+    # hit your route handler. 5 MB is a safe default for product images.
     MAX_CONTENT_LENGTH = 5 * 1024 * 1024  # 5 MB
 
 class DevelopmentConfig(Config):
@@ -38,24 +38,45 @@ class DevelopmentConfig(Config):
 class ProductionConfig(Config):
     """Production configuration."""
     DEBUG = False
-    # PostgreSQL for production - must be provided via environment variable
     database_url = os.getenv('DATABASE_URL')
     
-    # Handle Heroku postgres:// URL (convert to postgresql://)
-    if database_url and database_url.startswith('postgres://'):
-        database_url = database_url.replace('postgres://', 'postgresql://', 1)
+    # Handle different database URL formats
+    if database_url:
+        # Heroku/Render postgres:// to postgresql:// conversion
+        if database_url.startswith('postgres://'):
+            database_url = database_url.replace('postgres://', 'postgresql://', 1)
+        # SQL Server URL is typically: mssql+pyodbc://user:pass@host:port/database?driver=...
+        # No conversion needed for SQL Server URLs
     
     SQLALCHEMY_DATABASE_URI = database_url
     SQLALCHEMY_ECHO = False
     
-    # PostgreSQL-specific production settings
-    SQLALCHEMY_ENGINE_OPTIONS = {
-        'pool_size': 10,
-        'pool_recycle': 3600,
-        'pool_timeout': 20,
-        'pool_pre_ping': True,  # Verify connections before using them
-        'max_overflow': 5
-    }
+    # Database-specific engine options
+    if database_url and 'postgresql' in database_url:
+        # PostgreSQL-specific settings
+        SQLALCHEMY_ENGINE_OPTIONS = {
+            'pool_size': 10,
+            'pool_recycle': 3600,
+            'pool_timeout': 20,
+            'pool_pre_ping': True,
+            'max_overflow': 5
+        }
+    elif database_url and 'mssql' in database_url:
+        # SQL Server-specific settings
+        SQLALCHEMY_ENGINE_OPTIONS = {
+            'pool_size': 10,
+            'pool_recycle': 3600,
+            'pool_timeout': 30,
+            'pool_pre_ping': True,
+            'max_overflow': 5,
+            # SQL Server specific options
+            'fast_executemany': True,
+        }
+    else:
+        # Default engine options
+        SQLALCHEMY_ENGINE_OPTIONS = {
+            'pool_pre_ping': True,
+        }
 
 class TestingConfig(Config):
     """Testing configuration."""
