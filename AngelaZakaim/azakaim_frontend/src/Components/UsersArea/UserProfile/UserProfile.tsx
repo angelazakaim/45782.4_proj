@@ -7,8 +7,8 @@ import { usersService } from "../../../Services/UsersService";
 import type { UserWithProfile, ProfileUpdateData } from "../../../Models/User";
 import type { Customer } from "../../../Models/Customer";
 import type { Employee } from "../../../Models/Employee";
-import { CustomerProfileDisplay } from "../../UsersArea/Customerprofiledisplay/Customerprofiledisplay";
-import { EmployeeProfileDisplay } from "../../UsersArea/Employeeprofiledisplay/Employeeprofiledisplay";
+import { CustomerProfileDisplay } from "../CustomerProfileDisplay/CustomerProfileDisplay";
+import { EmployeeProfileDisplay } from "../EmployeeProfileDisplay/EmployeeProfileDisplay";
 import store from "../../../Redux/store";
 import "./UserProfile.css";
 

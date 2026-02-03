@@ -1,789 +1,1274 @@
-# GO-2 Market Frontend
+# Flask E-commerce API
 
-A modern, full-featured e-commerce web application built with React, TypeScript, and Vite. This application provides a complete shopping experience with role-based access control, product management, shopping cart, order processing, and comprehensive user management.
-
-![React](https://img.shields.io/badge/React-19.2.0-61dafb?logo=react)
-![TypeScript](https://img.shields.io/badge/TypeScript-5.9.3-3178c6?logo=typescript)
-![Vite](https://img.shields.io/badge/Vite-7.2.2-646cff?logo=vite)
-![Redux](https://img.shields.io/badge/Redux_Toolkit-2.11.0-764abc?logo=redux)
+A full-featured e-commerce REST API built with Flask, featuring JWT authentication, role-based access control, shopping cart, and order management.
 
 ## 📋 Table of Contents
 
-- [Features](#-features)
-- [Tech Stack](#-tech-stack)
-- [Project Structure](#-project-structure)
-- [Installation](#-installation)
-- [Environment Configuration](#-environment-configuration)
-- [Available Scripts](#-available-scripts)
-- [Architecture Overview](#-architecture-overview)
-- [Authentication & Authorization](#-authentication--authorization)
-- [Routing](#-routing)
-- [State Management](#-state-management)
-- [API Integration](#-api-integration)
-- [Development Guidelines](#-development-guidelines)
-- [Contributing](#-contributing)
+- [Features](#features)
+- [Tech Stack](#tech-stack)
+- [Quick Start with Docker (Development)](#-quick-start-with-docker-development)
+- [Production Deployment](#-production-deployment)
+- [Local Development Setup](#-local-development-setup)
+- [Configuration](#configuration)
+- [API Documentation](#api-documentation)
+- [Authentication](#authentication)
+- [Role-Based Access Control](#role-based-access-control)
+- [Testing Your Deployment](#-testing-your-deployment)
+- [Testing with Postman](#testing-with-postman)
+- [Project Structure](#project-structure)
+- [Troubleshooting](#-troubleshooting)
 
 ## ✨ Features
 
-### 🔐 Authentication & Authorization
-- **JWT-based Authentication** with access and refresh tokens
-- **Automatic Token Refresh** on expiry with axios interceptors
-- **Role-Based Access Control (RBAC)** with 4 roles:
-  - Admin - Full system access
-  - Manager - Business operations management
-  - Cashier - Point of sale operations
-  - Customer - Shopping and order management
-- **Secure Logout** with complete state cleanup
-- **Password Management** (change password functionality)
-
-### 👥 User Management
-- **User Registration** with role-specific profile creation
-- **User Profile Management** (view and edit)
-- **Admin Dashboard** for user administration
-- **Customer Management** (for managers/admins)
-- **Employee Management** (for admins)
-- **User Filtering** by role
-- **Ban/Unban Users** (manager/admin)
-- **Role Changes** (admin only)
-- **Password Reset** (admin only)
-
-### 🛍️ Product Management
-- **Comprehensive Product Catalog** with pagination
-- **Advanced Search & Filtering**:
-  - Search by name, SKU, barcode, category, or slug
-  - Category-based filtering
-  - Stock status filtering
-  - Featured products filtering
-- **Product CRUD Operations** (Create, Read, Update, Delete)
-- **Image Upload** with multipart form data
-- **Product Details** view with full information
-- **Stock Management**
-- **Pricing & Discounts**
-- **Product Categorization**
-
-### 🗂️ Category Management
-- **Hierarchical Categories** with parent-child relationships
-- **Category CRUD Operations**
-- **Subcategory Creation**
-- **Category Tree Building**
-- **Category-based Product Filtering**
-- **Active/Inactive Categories**
-
-### 🛒 Shopping Cart
-- **Persistent Cart** using localStorage
-- **Guest Cart** that syncs on login
-- **Real-time Cart Validation**
-- **Quantity Management**
-- **Add/Remove Items**
-- **Cart Clearing**
-- **Price Calculation** (subtotal, tax, shipping)
-- **Cart Item Count** display in navigation
-
-### 📦 Order Processing
-- **Complete Checkout Flow** with shipping address
-- **Order Creation** from cart
-- **Order History** for customers
-- **Order Management** for staff:
-  - View all orders (with date filtering for managers)
-  - Update order status
-  - Update payment status
-  - Ship orders with tracking
-  - Add internal notes
-  - Process refunds (admin only)
-- **Order Cancellation** (customers)
-- **Order Details** view with items and customer info
-- **Order Status Tracking**:
-  - Pending
-  - Confirmed
-  - Processing
-  - Shipped
-  - Delivered
-  - Cancelled
-  - Refunded
-
-### 🎨 UI/UX Features
-- **Responsive Design**
-- **Pagination** for all list views
-- **Toast Notifications** (Notyf)
-- **Loading States**
-- **Error Handling**
-- **Form Validation** (React Hook Form)
-- **Navigation Menu** with role-based visibility
-- **Product Cards** with images and pricing
-- **Order Cards** with status badges
-
-## 🛠️ Tech Stack
-
-### Core
-- **React 19.2.0** - UI library
-- **TypeScript 5.9.3** - Type safety
-- **Vite 7.2.2** - Build tool and dev server
-
-### State Management
-- **Redux Toolkit 2.11.0** - Global state management
-- **React Router DOM 7.9.6** - Client-side routing
-
-### HTTP & API
-- **Axios 1.13.2** - HTTP client with interceptors
-- **Custom Axios Configuration** - JWT token handling
-
-### Forms & Validation
-- **React Hook Form 7.66.1** - Form state management
-
-### Notifications
-- **Notyf 3.10.0** - Toast notifications
-
-### Development Tools
-- **ESLint** - Code linting
-- **TypeScript ESLint** - TypeScript-specific linting
-- **Vite Plugin React** - Fast refresh support
-
-## 📁 Project Structure
-
-```
-go-2-market/
-├── src/
-│   ├── Components/
-│   │   ├── AboutUs/
-│   │   │   ├── AboutUs.tsx
-│   │   │   └── AboutUs.css
-│   │   ├── AuthArea/
-│   │   │   ├── AuthMenu/          # User menu dropdown
-│   │   │   ├── Login/             # Login form
-│   │   │   └── Register/          # Registration form
-│   │   ├── CartsArea/
-│   │   │   ├── Cart/              # Shopping cart view
-│   │   │   └── Checkout/          # Checkout process
-│   │   ├── CategoriesArea/
-│   │   │   ├── AddCategory/       # Add new category
-│   │   │   ├── Categories/        # Category list
-│   │   │   ├── CategoryCard/      # Category card component
-│   │   │   ├── CategoryDetails/   # Category details view
-│   │   │   └── EditCategory/      # Edit category
-│   │   ├── CommonArea/
-│   │   │   └── Pagination/        # Reusable pagination component
-│   │   ├── HomeArea/
-│   │   │   ├── Home/              # Homepage
-│   │   │   ├── Recommendation/    # Product recommendations
-│   │   │   └── Sale/              # Sale/featured products
-│   │   ├── LayoutArea/
-│   │   │   ├── Footer/            # Footer component
-│   │   │   ├── Header/            # Header component
-│   │   │   ├── Layout/            # Main layout wrapper
-│   │   │   ├── NavBar/            # Navigation bar
-│   │   │   └── Routing/           # Route definitions
-│   │   ├── NotFound/              # 404 page
-│   │   ├── OrdersArea/
-│   │   │   ├── OrderCard/         # Order card component
-│   │   │   ├── OrderDetails/      # Order details view
-│   │   │   └── Orders/            # Orders list
-│   │   ├── ProductsArea/
-│   │   │   ├── AddProduct/        # Add new product
-│   │   │   ├── EditProduct/       # Edit product
-│   │   │   ├── ProductCard/       # Product card component
-│   │   │   ├── ProductDetails/    # Product details view
-│   │   │   └── Products/          # Products list
-│   │   └── UsersArea/
-│   │       ├── AddUser/           # Add new user (deprecated)
-│   │       ├── AdminCreateUser/   # Admin user creation
-│   │       ├── Customerprofiledisplay/  # Customer profile display
-│   │       ├── Customers/         # Customers list
-│   │       ├── EditUser/          # Edit user
-│   │       ├── Employeeprofiledisplay/  # Employee profile display
-│   │       ├── Employees/         # Employees list
-│   │       ├── UserCard/          # User card component
-│   │       ├── UserDetails/       # User details view
-│   │       ├── UserProfile/       # User profile page
-│   │       ├── Users/             # Users list
-│   │       └── UserStatistics/    # User statistics dashboard
-│   ├── Models/
-│   │   ├── Cart.ts                # Cart & CartItem interfaces
-│   │   ├── Category.ts            # Category interfaces
-│   │   ├── CredentialsModel.ts    # Login credentials
-│   │   ├── Customer.ts            # Customer profile interface
-│   │   ├── Employee.ts            # Employee profile interface
-│   │   ├── Enums.ts               # Shared enums and types
-│   │   ├── FullProduct.ts         # Extended product model
-│   │   ├── Order.ts               # Order & OrderItem interfaces
-│   │   ├── Product.ts             # Product interfaces
-│   │   ├── TokensModel.ts         # JWT tokens interface
-│   │   └── User.ts                # User interfaces
-│   ├── Redux/
-│   │   ├── AuthSlice.ts           # Authentication state
-│   │   ├── CartsSlice.ts          # Cart state
-│   │   ├── UsersSlice.ts          # Users state
-│   │   └── store.ts               # Redux store configuration
-│   ├── Services/
-│   │   ├── AuthService.ts         # Authentication API calls
-│   │   ├── cartsService.ts        # Cart API calls
-│   │   ├── CategoriesService.ts   # Categories API calls
-│   │   ├── NotificationService.ts # Toast notifications
-│   │   ├── OrdersService.ts       # Orders API calls
-│   │   ├── ProductsService.ts     # Products API calls
-│   │   └── UsersService.ts        # Users API calls
-│   ├── Utils/
-│   │   ├── axiosConfig.ts         # Axios interceptors setup
-│   │   ├── Config.ts              # Environment configuration
-│   │   ├── forceLoggedInHook.ts   # Auth guard hook
-│   │   └── useHasRole.ts          # Role checking hook
-│   ├── index.css                  # Global styles
-│   └── main.tsx                   # Application entry point
-├── index.html                     # HTML template
-├── package.json                   # Dependencies
-├── tsconfig.json                  # TypeScript configuration
-└── vite.config.ts                 # Vite configuration
-```
-
-## 🚀 Installation
-
-### Prerequisites
-- Node.js 18.x or higher
-- npm or yarn
-- Backend API server running (default: http://localhost:5000)
-
-### Steps
-
-1. **Clone the repository**
-   ```bash
-   git clone <repository-url>
-   cd go-2-market
-   ```
-
-2. **Install dependencies**
-   ```bash
-   npm install
-   ```
-
-3. **Configure environment**
-   - Update `src/Utils/Config.ts` with your backend API URL
-
-4. **Start the development server**
-   ```bash
-   npm run dev
-   ```
-
-5. **Open in browser**
-   - Navigate to `http://localhost:5173` (default Vite port)
-
-## ⚙️ Environment Configuration
-
-The application uses different configurations for development and production environments. Configuration is located in `src/Utils/Config.ts`:
-
-### Development Configuration
-```typescript
-BASE_URL = 'http://localhost:5000';
-AUTH_API_URL = 'http://localhost:5000/api/auth';
-USERS_API_URL = 'http://localhost:5000/api/users';
-PRODUCTS_API_URL = 'http://localhost:5000/api/products';
-CATEGORIES_API_URL = 'http://localhost:5000/api/categories';
-CART_API_URL = 'http://localhost:5000/api/cart';
-ORDERS_API_URL = 'http://localhost:5000/api/orders';
-```
-
-### Production Configuration
-Update the `ProductionConfig` class in `Config.ts` with your production API URLs:
-```typescript
-BASE_URL = 'https://api.yourcompany.com';
-AUTH_API_URL = 'https://api.yourcompany.com/api/auth';
-// ... other URLs
-```
-
-The configuration automatically switches based on `process.env.NODE_ENV`.
-
-## 📜 Available Scripts
-
-| Script | Description |
-|--------|-------------|
-| `npm run dev` | Start development server with hot reload |
-| `npm run build` | Build for production (TypeScript + Vite) |
-| `npm run lint` | Run ESLint for code quality |
-| `npm run preview` | Preview production build locally |
-
-## 🏗️ Architecture Overview
-
-### Component Architecture
-The application follows a feature-based component organization:
-
-- **Area-based Organization**: Components are grouped by feature area (Auth, Products, Users, etc.)
-- **Separation of Concerns**: Each component has its own TypeScript and CSS files
-- **Reusable Components**: Common components (Pagination) in CommonArea
-- **Layout Components**: Shared layout structure (Header, Footer, NavBar)
-
-### Service Layer
-All API communication is centralized in service classes:
-
-- **Single Responsibility**: Each service handles one domain (Auth, Products, etc.)
-- **Error Handling**: Centralized error handling with NotificationService
-- **Type Safety**: Full TypeScript interfaces for requests/responses
-- **Axios Integration**: Uses configured axios instance with interceptors
-
-### State Management Pattern
-Redux Toolkit is used for global state with three main slices:
-
-1. **AuthSlice**: User authentication state and tokens
-2. **CartsSlice**: Shopping cart with localStorage persistence
-3. **UsersSlice**: User list with caching and pagination
-
-### Custom Hooks
-- **useForceLoggedUser**: Route guard that checks authentication and roles
-- **useHasRole**: Check if current user has required role(s)
-
-## 🔐 Authentication & Authorization
-
-### JWT Token Flow
-
-1. **Login**: User submits credentials
-2. **Token Storage**: Access and refresh tokens stored in Redux + localStorage
-3. **Auto-Injection**: Axios request interceptor adds token to all requests
-4. **Token Refresh**: 401 responses trigger automatic refresh token use
-5. **Logout**: Clears all tokens and cart from Redux + localStorage
-
-### Request Interceptor
-```typescript
-// Automatically adds Authorization header to all requests
-axios.interceptors.request.use((config) => {
-    const token = store.getState().authStore.access_token;
-    if (token) {
-        config.headers.Authorization = `Bearer ${token}`;
-    }
-    return config;
-});
-```
-
-### Response Interceptor
-```typescript
-// Handles 401 errors and automatic token refresh
-axios.interceptors.response.use(
-    (response) => response,
-    async (error) => {
-        if (error.response?.status === 401 && !originalRequest._retry) {
-            // Attempt token refresh
-            const newToken = await authService.refreshToken(refreshToken);
-            // Retry original request with new token
-            return axios(originalRequest);
-        }
-        return Promise.reject(error);
-    }
-);
-```
-
-### Role-Based Access
-Components use the `useForceLoggedUser` hook for protection:
-
-```typescript
-// Require authentication
-useForceLoggedUser();
-
-// Require specific roles
-useForceLoggedUser(
-    "Please log in",
-    [UserRole.ADMIN, UserRole.MANAGER],
-    "Admin or Manager access required"
-);
-```
-
-Conditional rendering with `useHasRole`:
-```typescript
-const isStaff = useHasRole([UserRole.ADMIN, UserRole.MANAGER, UserRole.CASHIER]);
-
-{isStaff && <StaffOnlyFeature />}
-```
-
-## 🛤️ Routing
-
-### Public Routes
-- `/` → Redirect to `/home`
-- `/home` → Homepage
-- `/about` → About Us page
-- `/login` → Login page
-- `/register` → Registration page
-- `/products` → Products catalog
-- `/products/details/:prodId` → Product details
-
-### Protected Routes (Authenticated Users)
-- `/cart` → Shopping cart
-- `/checkout` → Checkout process
-- `/orders` → Order history
-- `/orders/:orderId` → Order details
-- `/profile` → User profile
-
-### Admin/Manager Routes
-- `/categories` → Category management
-- `/categories/add` → Add category
-- `/categories/edit/:id` → Edit category
-- `/products/add` → Add product
-- `/products/edit/:prodId` → Edit product
-- `/users` → User management (Admin only)
-- `/users/create` → Create user (Admin only)
-- `/users/:id` → User details (Admin only)
-- `/customers` → Customer list (Manager/Admin)
-- `/employees` → Employee list (Admin only)
-
-### Route Protection
-Routes are protected using the `useForceLoggedUser` hook within components:
-
-```typescript
-export function AdminOnlyPage() {
-    useForceLoggedUser("Please log in", [UserRole.ADMIN]);
-    // Component content
-}
-```
-
-## 🗄️ State Management
-
-### Redux Store Structure
-```typescript
-{
-    authStore: {
-        user: User | null,
-        access_token: string | null,
-        refresh_token: string | null
-    },
-    cartStore: {
-        items: LocalCartItem[]
-    },
-    userStore: {
-        users: User[],
-        pagination: { total, pages, currentPage },
-        loading: boolean,
-        error: string | null,
-        lastUpdated: number | null
-    }
-}
-```
-
-### Auth State Actions
-- `loginAction(payload)` - Store tokens and user on login
-- `logoutAction()` - Clear all auth state
-- `updateUserAction(user)` - Update user info
-
-### Cart State Actions
-- `fillCartAction(items)` - Replace entire cart (on login)
-- `addItemAction(item)` - Add or increment item
-- `removeItemAction(productId)` - Remove item
-- `clearCartAction()` - Clear cart
-
-### Users State Actions
-- `fillUsersAction(response)` - Load users with pagination
-- `addNewUserAction(user)` - Add new user to state
-- `deleteUserAction(id)` - Remove user from state
-- `updateUserAction(user)` - Update existing user
-- `setLoading(bool)` - Set loading state
-- `setError(message)` - Set error message
-
-### LocalStorage Persistence
-Auth and cart states are automatically persisted to localStorage:
-
-- Auth tokens: `access_token`, `refresh_token`, `user`
-- Cart items: `cart_items`
-
-This enables:
-- Session persistence across page reloads
-- Guest cart preservation during registration/login
-- Seamless user experience
-
-## 🌐 API Integration
-
-### Service Classes
-
-All API endpoints are abstracted into service classes:
-
-#### AuthService
-```typescript
-- login(credentials)          // POST /api/auth/login
-- register(data)              // POST /api/auth/register
-- logout()                    // Local state cleanup
-- changePassword(data)        // POST /api/auth/change-password
-- getCurrentUser()            // GET /api/auth/me
-- refreshToken(token)         // POST /api/auth/refresh
-```
-
-#### ProductsService
-```typescript
-- getAllProducts(page, perPage, filters)  // GET /api/products
-- searchProducts(type, value)             // GET /api/products?search_type=...
-- getOneProduct(id)                       // GET /api/products?search_type=id
-- getProductBySku(sku)                    // GET /api/products?search_type=sku
-- getProductBySlug(slug)                  // GET /api/products?search_type=slug
-- uploadImage(file)                       // POST /api/products/upload-image
-- addNewProduct(product)                  // POST /api/products/add
-- updateProduct(id, product)              // PUT /api/products/:id
-- deleteProduct(id)                       // DELETE /api/products/:id
-```
-
-#### CartService
-```typescript
-- getCart()                              // GET /api/cart
-- validateCart()                         // GET /api/cart/validate
-- addToCart(productId, quantity)         // POST /api/cart/items
-- updateCartItem(productId, quantity)    // PUT /api/cart/items/:productId
-- removeFromCart(productId)              // DELETE /api/cart/items/:productId
-- clearCart()                            // POST /api/cart/clear
-```
-
-#### OrdersService
-```typescript
-// Customer endpoints
-- createOrder(payload)                   // POST /api/orders
-- getMyOrders(page, perPage)            // GET /api/orders
-- getOrder(orderId)                     // GET /api/orders/:id
-- cancelOrder(orderId)                  // POST /api/orders/:id/cancel
-
-// Manager/Admin endpoints
-- getAllOrders(page, perPage, status)   // GET /api/orders/admin
-- updateStatus(orderId, status)         // PUT /api/orders/:id/status
-- updatePaymentStatus(orderId, status)  // PUT /api/orders/:id/payment-status
-- shipOrder(orderId, tracking)          // POST /api/orders/:id/ship
-- addNotes(orderId, notes)              // POST /api/orders/:id/notes
-- processRefund(orderId, reason)        // POST /api/orders/:id/refund
-- deleteOrder(orderId)                  // DELETE /api/orders/:id
-```
-
-#### UsersService
-```typescript
-- getAllUsers(page, perPage, filters)    // GET /api/users
-- getAllCustomers(page, perPage)         // GET /api/users/customers
-- getUserById(id)                        // GET /api/users/:id
-- getOwnProfile()                        // GET /api/users/profile
-- updateOwnProfile(data)                 // PUT /api/users/profile
-- updateUser(id, data)                   // PUT /api/users/:id
-- deleteUser(id)                         // DELETE /api/users/:id
-- banUser(id)                            // POST /api/users/:id/ban
-- unbanUser(id)                          // POST /api/users/:id/unban
-- changeUserRole(id, data)               // PUT /api/users/:id/role
-- resetPassword(id, newPassword)         // POST /api/users/:id/password-reset
-- getUserStatistics()                    // GET /api/users/statistics
-```
-
-#### CategoriesService
-```typescript
-- getAllCategories(parentOnly)           // GET /api/categories
-- getCategoryById(id)                    // GET /api/categories/:id
-- getCategoryBySlug(slug)                // GET /api/categories/slug/:slug
-- createCategory(category)               // POST /api/categories
-- createSubcategory(parentId, category)  // POST /api/categories/:id/subcategory
-- updateCategory(id, category)           // PUT /api/categories/:id
-- deleteCategory(id)                     // DELETE /api/categories/:id
-- buildCategoryTree(categories)          // Client-side tree building
-```
-
-### Error Handling
-
-All services use the `NotificationService` for consistent error handling:
-
-```typescript
-try {
-    const data = await axios.get(url);
-    notificationService.success("Success message");
-    return data;
-} catch (error) {
-    notificationService.error(error); // Automatically formats and displays
-    throw error;
-}
-```
-
-The `NotificationService` handles:
-- Axios errors with status-based messages
-- Server error responses (extracts `error` or `message` field)
-- Generic error objects
-- String errors
-- Unknown errors with logging
-
-## 📝 Development Guidelines
-
-### TypeScript Best Practices
-- Use strict mode
-- Define interfaces for all data models
-- Avoid `any` type
-- Use type guards where needed
-- Export types from model files
-
-### Component Structure
-```typescript
-// Import React and hooks
-import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
-
-// Import services and models
-import { productService } from "../../Services/ProductsService";
-import type { Product } from "../../Models/Product";
-
-// Import styles
-import "./ComponentName.css";
-
-// Component definition
-export function ComponentName() {
-    // Hooks
-    const navigate = useNavigate();
-    const [data, setData] = useState<Product[]>([]);
-    
-    // Effects
-    useEffect(() => {
-        // Fetch data
-    }, []);
-    
-    // Handlers
-    const handleClick = () => {
-        // Handle event
-    };
-    
-    // Render
-    return (
-        <div className="ComponentName">
-            {/* JSX */}
-        </div>
-    );
-}
-```
-
-### Service Class Pattern
-```typescript
-class ServiceName {
-    async getResource(id: number): Promise<Resource> {
-        try {
-            const response = await axios.get(`${config.API_URL}/${id}`);
-            return response.data;
-        } catch (error) {
-            notificationService.error(error);
-            throw error;
-        }
-    }
-}
-
-export const serviceName = new ServiceName();
-```
-
-### State Management
-- Use Redux for global state (auth, cart, cached data)
-- Use local component state for UI state
-- Use localStorage for persistence
-- Implement caching where appropriate (see UsersService)
-
-### Form Handling
-- Use React Hook Form for forms
-- Implement proper validation
-- Handle loading and error states
-- Show user feedback (notifications)
-
-### Styling
-- Use CSS modules or component-scoped CSS files
-- Follow BEM naming convention where appropriate
-- Use CSS variables for theming (defined in index.css)
-- Keep styles close to components
-
-### API Integration
-- All API calls through service classes
-- Handle errors consistently
-- Show loading states
-- Use TypeScript interfaces for responses
-- Implement retry logic where needed (axios interceptor)
-
-## 🤝 Contributing
-
-### Branch Strategy
-- `main` - Production-ready code
-- `develop` - Development branch
-- `feature/*` - Feature branches
-- `bugfix/*` - Bug fix branches
-
-### Commit Convention
-Follow conventional commits:
-- `feat:` - New feature
-- `fix:` - Bug fix
-- `docs:` - Documentation changes
-- `style:` - Code style changes (formatting)
-- `refactor:` - Code refactoring
-- `test:` - Test additions/changes
-- `chore:` - Build process or auxiliary tool changes
-
-### Pull Request Process
-1. Create feature branch from `develop`
-2. Implement changes with proper TypeScript types
-3. Test thoroughly
-4. Update documentation if needed
-5. Submit PR to `develop` branch
-6. Address review feedback
-7. Merge after approval
-
-## 📦 Building for Production
-
-```bash
-# Create production build
-npm run build
-
-# Output will be in /dist directory
-```
-
-### Build Optimization
-- TypeScript compilation with strict checks
-- Vite production optimizations
-- Code splitting
-- Tree shaking
-- Minification
-
-### Deployment
-1. Build the application: `npm run build`
-2. Deploy the `/dist` folder to your hosting service
-3. Configure your web server to serve `index.html` for all routes (SPA)
-4. Set up environment variables for production API URLs
-
-### Example Nginx Configuration
-```nginx
-server {
-    listen 80;
-    server_name yourdomain.com;
-    root /var/www/go-2-market/dist;
-    index index.html;
-
-    location / {
-        try_files $uri $uri/ /index.html;
-    }
-}
-```
-
-## 🐛 Troubleshooting
-
-### Common Issues
-
-**Issue: CORS errors**
-- Solution: Ensure backend has proper CORS configuration
-- Check that backend allows your frontend origin
-
-**Issue: 401 Unauthorized errors**
-- Solution: Check that axios interceptors are set up (in main.tsx)
-- Verify tokens are being stored in localStorage
-- Check token expiration times
-
-**Issue: Cart not persisting**
-- Solution: Check localStorage is enabled in browser
-- Verify cart slice is saving to localStorage on each mutation
-
-**Issue: Routes not working after refresh**
-- Solution: Configure server to serve index.html for all routes
-- Use `HashRouter` as fallback if server configuration is not possible
-
-**Issue: TypeScript errors**
-- Solution: Run `npm run build` to see detailed errors
-- Ensure all imports have proper types
-- Check tsconfig.json configuration
-
-## 📄 License
-
-This project is licensed under the MIT License.
-
-## 👨‍💻 Authors
-
-Your team name or individual contributors
-
-## 🙏 Acknowledgments
-
-- React Team for the amazing library
-- Vite Team for the blazing fast build tool
-- Redux Toolkit Team for simplified state management
-- All open-source contributors
+- **User Management**: Registration, authentication with JWT tokens
+- **Role-Based Access**: Admin, Manager, Cashier, and Customer roles
+- **Product Catalog**: Full CRUD operations with categories, search, and filtering
+- **Shopping Cart**: Add, update, remove items with automatic total calculations
+- **Order Management**: Create orders from cart, track status, manage payments
+- **Image Upload**: Secure product image upload with validation
+- **Security**: Password hashing, JWT tokens, role-based permissions
+
+## 🛠 Tech Stack
+
+- **Framework**: Flask 3.0.0
+- **Database**: SQLite (dev) / PostgreSQL (production) / SQL Server (enterprise)
+- **Authentication**: Flask-JWT-Extended
+- **Validation**: Marshmallow
+- **Image Processing**: Pillow
+- **CORS**: Flask-CORS
+- **Rate Limiting**: Flask-Limiter
+- **Containerization**: Docker & Docker Compose
 
 ---
 
-**Happy Coding! 🚀**
+## 🐳 Quick Start with Docker (Development)
 
-For questions or support, please open an issue in the repository.
+### Prerequisites
+
+- [Docker Desktop](https://www.docker.com/products/docker-desktop/) installed and running
+- Git (to clone the repository)
+
+### Step 1: Clone the Repository
+
+```bash
+git clone <repository-url>
+cd AngelaZakaim
+```
+
+### Step 2: Clean Up Previous Docker Data (Optional)
+
+If you've run this project before and want a fresh start:
+
+```bash
+# Stop and remove all project containers, volumes, and images
+docker-compose -f docker-compose.dev.yml down -v --rmi local
+
+# Or for a complete Docker cleanup (removes ALL unused Docker data)
+docker system prune -a --volumes -f
+```
+
+### Step 3: Update docker-compose.dev.yml
+
+Make sure the `DATABASE_URL` has the correct path (4 slashes for absolute path):
+
+```yaml
+environment:
+  - DATABASE_URL=sqlite:////app/instance/ecommerce_dev.db
+```
+
+### Step 4: Build and Start Containers
+
+```bash
+# Build and start all services
+docker-compose -f docker-compose.dev.yml up -d --build
+```
+
+### Step 5: Verify Containers are Running
+
+```bash
+# Check container status
+docker ps
+
+# You should see:
+# - ecommerce-backend-dev (port 5000)
+# - ecommerce-frontend-dev (port 5173)
+```
+
+### Step 6: Initialize the Database
+
+```bash
+# Initialize Flask-Migrate
+docker exec -it ecommerce-backend-dev flask db init
+
+# Create migration files
+docker exec -it ecommerce-backend-dev flask db migrate -m "initial_setup"
+
+# Apply migrations to create tables
+docker exec -it ecommerce-backend-dev flask db upgrade
+```
+
+### Step 7: Seed the Database (Optional but Recommended)
+
+```bash
+# Run the seed script to populate with test data
+docker exec -it ecommerce-backend-dev python seed_data_go2market.py
+```
+
+This creates:
+- 53 users (1 admin, 1 manager, 1 cashier, 50 customers)
+- 150 products across 13 categories
+- 100 sample orders
+
+### Step 8: Access the Application
+
+| Service | URL |
+|---------|-----|
+| Backend API | http://localhost:5000 |
+| Frontend | http://localhost:5173 |
+| API Health Check | http://localhost:5000/api/health |
+
+---
+
+## 🔄 Docker Commands Reference
+
+### Starting and Stopping
+
+```bash
+# Start containers
+docker-compose -f docker-compose.dev.yml up -d
+
+# Stop containers (keeps data)
+docker-compose -f docker-compose.dev.yml down
+
+# Stop containers and remove volumes (deletes database)
+docker-compose -f docker-compose.dev.yml down -v
+
+# Restart containers
+docker-compose -f docker-compose.dev.yml restart
+```
+
+### Viewing Logs
+
+```bash
+# View all logs
+docker-compose -f docker-compose.dev.yml logs
+
+# View backend logs only
+docker-compose -f docker-compose.dev.yml logs backend
+
+# Follow logs in real-time
+docker-compose -f docker-compose.dev.yml logs -f backend
+```
+
+### Executing Commands in Container
+
+```bash
+# Open bash shell in backend container
+docker exec -it ecommerce-backend-dev bash
+
+# Run Flask shell (for debugging)
+docker exec -it ecommerce-backend-dev flask shell
+
+# Run a Python script
+docker exec -it ecommerce-backend-dev python your_script.py
+
+# Check environment variables
+docker exec -it ecommerce-backend-dev printenv DATABASE_URL
+```
+
+### Database Management
+
+```bash
+# Create new migration after model changes
+docker exec -it ecommerce-backend-dev flask db migrate -m "description of changes"
+
+# Apply migrations
+docker exec -it ecommerce-backend-dev flask db upgrade
+
+# Rollback last migration
+docker exec -it ecommerce-backend-dev flask db downgrade
+
+# View migration history
+docker exec -it ecommerce-backend-dev flask db history
+```
+
+### Rebuilding
+
+```bash
+# Rebuild after code changes (usually not needed due to volume mount)
+docker-compose -f docker-compose.dev.yml up -d --build
+
+# Force rebuild without cache
+docker-compose -f docker-compose.dev.yml build --no-cache
+docker-compose -f docker-compose.dev.yml up -d
+```
+
+### Complete Reset
+
+```bash
+# Nuclear option - complete fresh start
+
+# Stop and remove
+docker-compose -f docker-compose.dev.yml down -v
+
+# Remove migrations folder locally
+rmdir /s /q azakaim_backend\migrations   # Windows
+# rm -rf azakaim_backend/migrations      # Linux/Mac
+
+# Start fresh
+docker-compose -f docker-compose.dev.yml up -d --build
+
+# Verify the fix
+docker exec -it ecommerce-backend-dev printenv DATABASE_URL
+# Should now show: sqlite:////app/instance/ecommerce_dev.db
+
+# Initialize database
+docker exec -it ecommerce-backend-dev flask db init
+docker exec -it ecommerce-backend-dev flask db migrate -m "initial_setup"
+docker exec -it ecommerce-backend-dev flask db upgrade
+
+# Seed database with test data (150 products, 100 orders, 53 users)
+docker exec -it ecommerce-backend-dev python seed_data_go2market.py
+```
+
+---
+
+## 🚀 Production Deployment
+
+Production uses **SQL Server** database and runs on different ports so it can run alongside development.
+
+### Production URLs
+
+| Service | URL |
+|---------|-----|
+| Backend API | http://localhost:5001 |
+| Frontend | http://localhost:3001 |
+| SQL Server | localhost:1433 |
+
+### Prerequisites
+
+- Docker Desktop with at least **4GB RAM** allocated (SQL Server requirement)
+- Migrations folder must exist locally (created in dev environment first)
+
+### First Time Setup
+
+```bash
+# 1. Make sure migrations folder exists (if not, run dev setup first)
+dir azakaim_backend\migrations
+
+# 2. Make sure .dockerignore does NOT exclude migrations/
+# Edit azakaim_backend\.dockerignore and remove the line: migrations/
+
+# 3. Start production stack
+docker-compose up -d --build
+
+# 4. Check all containers are running
+docker ps
+
+# 5. Check logs (wait for "Starting Gunicorn...")
+docker-compose logs -f backend
+# Press Ctrl+C to exit logs
+
+# 6. Seed database with test data
+docker exec -it ecommerce-backend python seed_data_go2market.py
+```
+
+### Production Commands
+
+```bash
+# Start production
+docker-compose up -d --build
+
+# Stop production
+docker-compose down
+
+# Stop and delete database
+docker-compose down -v
+
+# View logs
+docker-compose logs -f backend
+
+# Restart services
+docker-compose restart
+
+# Seed database
+docker exec -it ecommerce-backend python seed_data_go2market.py
+
+# Access Flask shell
+docker exec -it ecommerce-backend flask shell
+```
+
+### Test Production
+
+```bash
+# Test root endpoint
+curl http://localhost:5001/
+
+# Test products
+curl http://localhost:5001/api/products
+
+# Test login
+curl -X POST http://localhost:5001/api/auth/login -H "Content-Type: application/json" -d "{\"email_or_username\": \"admin@ecommerce.com\", \"password\": \"Admin123!\"}"
+```
+
+Or open in browser:
+- **API**: http://localhost:5001/api/products
+- **Frontend**: http://localhost:3001
+
+### Environment Files
+
+| File | Purpose |
+|------|---------|
+| `.env` | Development settings (SQLite) |
+| `.env.production` | Production settings (SQL Server) |
+
+Update `.env.production` with secure values:
+
+```env
+SECRET_KEY=your-secure-random-key
+JWT_SECRET_KEY=your-secure-random-key
+SA_PASSWORD=YourStrongPassword123!
+```
+
+### Running Dev and Prod Together
+
+Both environments can run simultaneously on different ports:
+
+| Service | Dev | Prod |
+|---------|-----|------|
+| Backend | http://localhost:5000 | http://localhost:5001 |
+| Frontend | http://localhost:5173 | http://localhost:3001 |
+
+```bash
+# Start dev
+docker-compose -f docker-compose.dev.yml up -d --build
+
+# Start prod (in separate terminal or after dev is running)
+docker-compose up -d --build
+
+# Stop dev only
+docker-compose -f docker-compose.dev.yml down
+
+# Stop prod only
+docker-compose down
+```
+
+---
+
+## 🧪 Testing Your Deployment
+
+### Quick Reference - URLs
+
+| Environment | Backend | Frontend |
+|-------------|---------|----------|
+| **Development** | http://localhost:5000 | http://localhost:5173 |
+| **Production** | http://localhost:5001 | http://localhost:3001 |
+
+### Quick Commands to Test Your Docker Environment
+
+#### Step 1: Check Containers are Running
+
+```bash
+docker ps
+```
+
+**Development** - You should see:
+- `ecommerce-backend-dev` (port 5000)
+- `ecommerce-frontend-dev` (port 5173)
+
+**Production** - You should see:
+- `ecommerce-sqlserver` (port 1433)
+- `ecommerce-backend` (port 5001)
+- `ecommerce-frontend` (port 3001)
+
+#### Step 2: Check Database URL is Correct
+
+```bash
+# Development
+docker exec -it ecommerce-backend-dev printenv DATABASE_URL
+# Should show: sqlite:////app/instance/ecommerce_dev.db
+
+# Production
+docker exec -it ecommerce-backend printenv DATABASE_URL
+# Should show: mssql+pyodbc://sa:...@sqlserver:1433/ecommerce...
+```
+
+#### Step 3: Test API Health
+
+Open in browser or use curl:
+
+```bash
+# Development
+curl http://localhost:5000/
+
+# Production
+curl http://localhost:5001/
+```
+
+Or open in browser:
+- **Dev**: http://localhost:5000/api/products
+- **Prod**: http://localhost:5001/api/products
+
+#### Step 4: Test Login (After Seeding)
+
+```bash
+# Development
+curl -X POST http://localhost:5000/api/auth/login -H "Content-Type: application/json" -d "{\"email_or_username\": \"admin@ecommerce.com\", \"password\": \"Admin123!\"}"
+
+# Production
+curl -X POST http://localhost:5001/api/auth/login -H "Content-Type: application/json" -d "{\"email_or_username\": \"admin@ecommerce.com\", \"password\": \"Admin123!\"}"
+```
+
+If successful, you'll get back an `access_token`.
+
+#### Step 5: Test Products Endpoint
+
+```bash
+# Development
+curl "http://localhost:5000/api/products?page=1&per_page=5"
+
+# Production
+curl "http://localhost:5001/api/products?page=1&per_page=5"
+```
+
+#### Step 6: Check Frontend
+
+- **Development**: http://localhost:5173
+- **Production**: http://localhost:3001
+
+### Quick Summary Table
+
+#### Development
+
+| Test | Command/URL | Expected Result |
+|------|-------------|-----------------|
+| Containers running | `docker ps` | `ecommerce-backend-dev`, `ecommerce-frontend-dev` |
+| Database URL | `docker exec -it ecommerce-backend-dev printenv DATABASE_URL` | `sqlite:////app/instance/ecommerce_dev.db` |
+| Backend API | http://localhost:5000/api/products | JSON with products |
+| Frontend | http://localhost:5173 | React app loads |
+
+#### Production
+
+| Test | Command/URL | Expected Result |
+|------|-------------|-----------------|
+| Containers running | `docker ps` | `ecommerce-sqlserver`, `ecommerce-backend`, `ecommerce-frontend` |
+| Database URL | `docker exec -it ecommerce-backend printenv DATABASE_URL` | `mssql+pyodbc://...` |
+| Backend API | http://localhost:5001/api/products | JSON with products |
+| Frontend | http://localhost:3001 | React app loads |
+
+> ✅ **Available Test URLs (Development):**
+> - `http://localhost:5000/` - API info and available endpoints
+> - `http://localhost:5000/health` - Health check
+> - `http://localhost:5000/api` - Detailed API documentation
+> - `http://localhost:5000/api/products` - Get products
+> - `http://localhost:5000/api/categories` - Get categories
+>
+> ✅ **Available Test URLs (Production):**
+> - `http://localhost:5001/` - API info and available endpoints
+> - `http://localhost:5001/health` - Health check
+> - `http://localhost:5001/api` - Detailed API documentation
+> - `http://localhost:5001/api/products` - Get products
+> - `http://localhost:5001/api/categories` - Get categories
+
+### If Tests Fail
+
+If you get empty results or errors, the database might not be set up yet:
+
+```bash
+# Development
+docker exec -it ecommerce-backend-dev flask db upgrade
+docker exec -it ecommerce-backend-dev python seed_data_go2market.py
+
+# Production
+docker exec -it ecommerce-backend python seed_data_go2market.py
+```
+
+Then test again:
+
+```bash
+# Development
+curl "http://localhost:5000/api/products?page=1&per_page=5"
+
+# Production
+curl "http://localhost:5001/api/products?page=1&per_page=5"
+```
+
+### Test Authentication Flow
+
+#### 1. Register a New User
+
+```bash
+curl -X POST http://localhost:5000/api/auth/register \
+  -H "Content-Type: application/json" \
+  -d '{
+    "email": "test@example.com",
+    "username": "testuser",
+    "password": "Test123!",
+    "role": "customer",
+    "first_name": "Test",
+    "last_name": "User",
+    "phone": "555-1234"
+  }'
+```
+
+#### 2. Login (Using Seeded Account)
+
+```bash
+curl -X POST http://localhost:5000/api/auth/login \
+  -H "Content-Type: application/json" \
+  -d '{
+    "email_or_username": "admin@ecommerce.com",
+    "password": "Admin123!"
+  }'
+```
+
+Save the `access_token` from the response for subsequent requests.
+
+#### 3. Test Protected Endpoint
+
+```bash
+curl http://localhost:5000/api/auth/me \
+  -H "Authorization: Bearer YOUR_ACCESS_TOKEN_HERE"
+```
+
+### Test API Endpoints
+
+#### Get Products (Public)
+
+```bash
+curl "http://localhost:5000/api/products?page=1&per_page=10"
+```
+
+#### Get Categories (Public)
+
+```bash
+curl http://localhost:5000/api/categories
+```
+
+#### Get Orders (Requires Auth)
+
+```bash
+curl http://localhost:5000/api/orders \
+  -H "Authorization: Bearer YOUR_ACCESS_TOKEN_HERE"
+```
+
+### Test Accounts (After Seeding)
+
+| Role | Email | Password |
+|------|-------|----------|
+| Admin | admin@ecommerce.com | Admin123! |
+| Manager | manager@ecommerce.com | Manager123! |
+| Cashier | cashier@ecommerce.com | Cashier123! |
+| Customer | customer1@email.com | Customer123! |
+| Customer | customer2@email.com | Customer123! |
+| ... | customer3-50@email.com | Customer123! |
+
+### Pagination Testing
+
+The seeded database includes 150 products and 100 orders for testing pagination:
+
+```bash
+# First page of products
+curl "http://localhost:5000/api/products?page=1&per_page=20"
+
+# Second page
+curl "http://localhost:5000/api/products?page=2&per_page=20"
+
+# Last page (should have fewer items)
+curl "http://localhost:5000/api/products?page=8&per_page=20"
+
+# Test different page sizes
+curl "http://localhost:5000/api/products?page=1&per_page=50"
+```
+
+### Using Postman
+
+1. Import the Postman collection (if provided)
+2. Set environment variable `base_url` = `http://localhost:5000`
+3. Run "Login" request first (tokens are auto-saved)
+4. Test other endpoints
+
+---
+
+## 💻 Local Development Setup
+
+### Prerequisites
+
+- Python 3.8+
+- pip (Python package manager)
+
+### 1. Clone and Setup Virtual Environment
+
+```bash
+git clone <repository-url>
+cd azakaim_backend
+
+# Windows
+python -m venv venv
+venv\Scripts\activate
+
+# Linux/Mac
+python3 -m venv venv
+source venv/bin/activate
+```
+
+### 2. Install Dependencies
+
+```bash
+# For local development (SQLite, no SQL Server driver)
+pip install -r requirements-local.txt
+
+# For full installation (includes PostgreSQL and SQL Server drivers)
+pip install -r requirements.txt
+```
+
+### 3. Configure Environment
+
+Create a `.env` file:
+
+```env
+FLASK_APP=run.py
+FLASK_ENV=development
+SECRET_KEY=your-secret-key-change-in-production
+DATABASE_URL=sqlite:///instance/ecommerce_dev.db
+JWT_SECRET_KEY=your-jwt-secret-key
+JWT_ACCESS_TOKEN_EXPIRES=3600
+JWT_REFRESH_TOKEN_EXPIRES=2592000
+CORS_ORIGINS=http://localhost:3000,http://localhost:5173
+```
+
+### 4. Initialize Database
+
+```bash
+flask db init
+flask db migrate -m "Initial migration"
+flask db upgrade
+
+# Seed with test data
+python seed_data_go2market.py
+```
+
+### 5. Run the Application
+
+```bash
+python run.py
+```
+
+The API will be available at `http://localhost:5000`
+
+---
+
+## ⚙️ Configuration
+
+### Environment Variables
+
+| Variable | Description | Default |
+|----------|-------------|---------|
+| `FLASK_ENV` | Environment (development/production) | development |
+| `SECRET_KEY` | Flask secret key | (required) |
+| `DATABASE_URL` | Database connection string | sqlite:///instance/ecommerce_dev.db |
+| `JWT_SECRET_KEY` | JWT signing key | (required) |
+| `JWT_ACCESS_TOKEN_EXPIRES` | Access token TTL (seconds) | 3600 |
+| `JWT_REFRESH_TOKEN_EXPIRES` | Refresh token TTL (seconds) | 2592000 |
+| `CORS_ORIGINS` | Allowed CORS origins | * |
+| `DEFAULT_PAGE_SIZE` | Default pagination size | 20 |
+| `MAX_PAGE_SIZE` | Maximum pagination size | 100 |
+
+### Database URL Formats
+
+```bash
+# SQLite (Development)
+DATABASE_URL=sqlite:////app/instance/ecommerce_dev.db  # Docker (absolute path)
+DATABASE_URL=sqlite:///instance/ecommerce_dev.db       # Local (relative path)
+
+# PostgreSQL (Production - Render/Heroku)
+DATABASE_URL=postgresql://user:password@host:5432/database
+
+# SQL Server (Enterprise)
+DATABASE_URL=mssql+pyodbc://user:password@host:1433/database?driver=ODBC+Driver+18+for+SQL+Server
+```
+
+---
+
+## 📚 API Documentation
+
+### Base URL
+
+```
+http://localhost:5000/api
+```
+
+### Response Format
+
+All responses follow this structure:
+
+**Success:**
+```json
+{
+  "message": "Success message",
+  "data": { ... }
+}
+```
+
+**Error:**
+```json
+{
+  "error": "Error message",
+  "details": { ... }
+}
+```
+
+---
+
+## 🔐 Authentication
+
+### 1. Register User
+
+**POST** `/api/auth/register`
+
+Create a new user account.
+
+**Request Body:**
+```json
+{
+  "email": "customer@example.com",
+  "username": "customer1",
+  "password": "password123",
+  "role": "customer",
+  "first_name": "John",
+  "last_name": "Doe",
+  "phone": "+1234567890",
+  "address_line1": "123 Main St",
+  "city": "New York",
+  "state": "NY",
+  "postal_code": "10001",
+  "country": "USA"
+}
+```
+
+**Response (201):**
+```json
+{
+  "message": "User registered successfully",
+  "user": {
+    "id": 1,
+    "email": "customer@example.com",
+    "username": "customer1",
+    "role": "customer"
+  },
+  "profile": {
+    "first_name": "John",
+    "last_name": "Doe",
+    "phone": "+1234567890"
+  }
+}
+```
+
+### 2. Login
+
+**POST** `/api/auth/login`
+
+Authenticate and receive JWT tokens.
+
+**Request Body:**
+```json
+{
+  "email_or_username": "customer@example.com",
+  "password": "password123"
+}
+```
+
+**Response (200):**
+```json
+{
+  "message": "Login successful",
+  "access_token": "eyJ0eXAiOiJKV1QiLCJhbGc...",
+  "refresh_token": "eyJ0eXAiOiJKV1QiLCJhbGc...",
+  "user": {
+    "id": 1,
+    "email": "customer@example.com",
+    "role": "customer"
+  }
+}
+```
+
+### 3. Refresh Token
+
+**POST** `/api/auth/refresh`
+
+Get new access token using refresh token.
+
+**Headers:**
+```
+Authorization: Bearer <refresh_token>
+```
+
+**Response (200):**
+```json
+{
+  "access_token": "eyJ0eXAiOiJKV1QiLCJhbGc..."
+}
+```
+
+### 4. Get Current User
+
+**GET** `/api/auth/me`
+
+Get current authenticated user information.
+
+**Headers:**
+```
+Authorization: Bearer <access_token>
+```
+
+**Response (200):**
+```json
+{
+  "user": {
+    "id": 1,
+    "email": "customer@example.com",
+    "username": "customer1",
+    "role": "customer"
+  },
+  "profile": {
+    "first_name": "John",
+    "last_name": "Doe",
+    "phone": "+1234567890"
+  }
+}
+```
+
+---
+
+## 🛍️ Products
+
+### 1. Get All Products
+
+**GET** `/api/products`
+
+Retrieve products with pagination and filters.
+
+**Query Parameters:**
+- `page` (int, default: 1)
+- `per_page` (int, default: 20, max: 100)
+- `category_id` (int, optional)
+- `featured` (boolean, optional)
+
+**Example:**
+```
+GET /api/products?page=1&per_page=20&category_id=1
+```
+
+**Response (200):**
+```json
+{
+  "products": [
+    {
+      "id": 1,
+      "name": "Product Name",
+      "slug": "product-name",
+      "description": "Product description",
+      "price": 99.99,
+      "compare_price": 129.99,
+      "discount_percentage": 23.08,
+      "sku": "SKU-001",
+      "stock_quantity": 50,
+      "is_in_stock": true,
+      "category_id": 1,
+      "image_url": "/static/uploads/products/image.jpg",
+      "is_featured": true
+    }
+  ],
+  "total": 100,
+  "pages": 5,
+  "current_page": 1,
+  "per_page": 20
+}
+```
+
+### 2. Search Products
+
+Search by ID, SKU, slug, barcode, or name.
+
+**GET** `/api/products?search_type=<type>&search_value=<value>`
+
+**Search Types:**
+- `id` - Search by product ID
+- `sku` - Search by SKU
+- `slug` - Search by URL slug
+- `barcode` - Search by barcode
+- `name` - Search by product name
+
+**Examples:**
+```
+GET /api/products?search_type=sku&search_value=SKU-001
+GET /api/products?search_type=name&search_value=laptop
+GET /api/products?search_type=slug&search_value=gaming-laptop
+```
+
+### 3. Upload Product Image
+
+**POST** `/api/products/upload-image`
+
+Upload a product image. Returns image URL.
+
+**Content-Type:** `multipart/form-data`
+
+**Form Data:**
+- `file` - Image file (png, jpg, jpeg, gif, webp, max 5MB)
+
+**Response (201):**
+```json
+{
+  "url": "/static/uploads/products/abc123.jpg"
+}
+```
+
+### 4. Create Product
+
+**POST** `/api/products/add`
+
+Create a new product.
+
+**Request Body:**
+```json
+{
+  "name": "New Product",
+  "description": "Product description",
+  "price": 99.99,
+  "compare_price": 129.99,
+  "sku": "SKU-NEW-001",
+  "barcode": "1234567890",
+  "stock_quantity": 100,
+  "category_id": 1,
+  "weight": 1.5,
+  "dimensions": "10x20x30 cm",
+  "image_url": "/static/uploads/products/image.jpg",
+  "is_active": true,
+  "is_featured": false
+}
+```
+
+---
+
+## 🔒 Role-Based Access Control
+
+### Roles Hierarchy
+
+```
+Admin (Full Access)
+  ↓
+Manager (Manage operations, view reports)
+  ↓
+Cashier (Process orders, view today's data)
+  ↓
+Customer (Shopping, cart, own orders)
+```
+
+### Permission Matrix
+
+| Endpoint | Customer | Cashier | Manager | Admin |
+|----------|----------|---------|---------|-------|
+| **Products** |
+| View Products | ✓ | ✓ | ✓ | ✓ |
+| Create Product | ✗ | ✗ | ✓ | ✓ |
+| Update Product | ✗ | ✗ | ✓ | ✓ |
+| Delete Product | ✗ | ✗ | ✗ | ✓ |
+| **Categories** |
+| View Categories | ✓ | ✓ | ✓ | ✓ |
+| Create Top Category | ✗ | ✗ | ✗ | ✓ |
+| Create Subcategory | ✗ | ✗ | ✓ | ✓ |
+| Update Category | ✗ | ✗ | ✓ | ✓ |
+| Delete Category | ✗ | ✗ | ✗ | ✓ |
+| **Cart** |
+| Manage Own Cart | ✓ | ✓ | ✓ | ✓ |
+| **Orders** |
+| Create Order | ✓ | ✓ | ✓ | ✓ |
+| View Own Orders | ✓ | ✗ | ✗ | ✗ |
+| Cancel Own Order | ✓ | ✗ | ✗ | ✗ |
+| View Today's Orders | ✗ | ✓ | ✓ | ✓ |
+| Update Order Status | ✗ | ✓ | ✓ | ✓ |
+| View All Orders | ✗ | ✗ | ✓* | ✓ |
+| Process Refund | ✗ | ✗ | ✗ | ✓ |
+| Delete Order | ✗ | ✗ | ✗ | ✓ |
+| **Users** |
+| View Own Profile | ✓ | ✓ | ✓ | ✓ |
+| Update Own Profile | ✓ | ✓ | ✓ | ✓ |
+| View Customers | ✗ | ✗ | ✓ | ✓ |
+| View Employees | ✗ | ✗ | ✓ | ✓ |
+| Manage Users | ✗ | ✗ | ✗ | ✓ |
+| Change Roles | ✗ | ✗ | ✗ | ✓ |
+
+*Manager can view last 30 days only
+
+---
+
+## 🧪 Testing with Postman
+
+### 1. Import Collection
+
+1. Download `Flask_Ecommerce_API.postman_collection.json`
+2. Open Postman
+3. Click **Import** → Select file
+4. Collection will be imported with all endpoints
+
+### 2. Set Up Environment
+
+The collection includes these variables:
+- `base_url` - API base URL (default: http://localhost:5000)
+- `access_token` - JWT access token (auto-set on login)
+- `refresh_token` - JWT refresh token (auto-set on login)
+
+### 3. Quick Start Testing
+
+**Step 1: Register a User**
+```
+POST /api/auth/register
+```
+Create accounts for different roles (customer, manager, cashier).
+
+**Step 2: Login**
+```
+POST /api/auth/login
+```
+Login saves tokens automatically to environment variables.
+
+**Step 3: Test Endpoints**
+
+All subsequent requests will use the saved access token automatically.
+
+### 4. Test Different Roles
+
+To test role-based permissions:
+
+1. Register/login as customer → Test customer endpoints
+2. Register/login as cashier → Test staff endpoints
+3. Login as manager → Test manager endpoints
+4. Login as admin → Test admin endpoints
+
+---
+
+## 📂 Project Structure
+
+```
+AngelaZakaim/
+├── docker-compose.dev.yml      # Docker development config
+├── azakaim_backend/
+│   ├── app/
+│   │   ├── __init__.py         # App factory
+│   │   ├── extensions.py       # Flask extensions
+│   │   ├── enums.py            # Enums (roles, statuses)
+│   │   ├── models/             # Database models
+│   │   │   ├── user.py
+│   │   │   ├── customer.py
+│   │   │   ├── employee.py
+│   │   │   ├── product.py
+│   │   │   ├── category.py
+│   │   │   ├── cart.py
+│   │   │   ├── cart_item.py
+│   │   │   ├── order.py
+│   │   │   └── order_item.py
+│   │   ├── routes/             # API routes
+│   │   │   ├── auth_routes.py
+│   │   │   ├── user_routes.py
+│   │   │   ├── product_routes.py
+│   │   │   ├── category_routes.py
+│   │   │   ├── cart_routes.py
+│   │   │   └── order_routes.py
+│   │   ├── services/           # Business logic
+│   │   ├── repositories/       # Database operations
+│   │   ├── schemas/            # Marshmallow schemas
+│   │   ├── utils/              # Utilities & decorators
+│   │   └── static/             # Static files
+│   │       └── uploads/        # Uploaded images
+│   ├── migrations/             # Database migrations (auto-generated)
+│   ├── instance/               # SQLite database (Docker volume)
+│   ├── .env                    # Environment variables
+│   ├── Dockerfile              # Backend Docker image
+│   ├── requirements.txt        # Production dependencies
+│   ├── requirements-local.txt  # Local dev dependencies
+│   ├── config.py               # Flask configuration
+│   ├── run.py                  # Application entry point
+│   ├── wsgi.py                 # WSGI entry point (production)
+│   └── seed_data_go2market.py  # Database seeder
+└── azakaim_frontend/
+    ├── Dockerfile.dev          # Frontend Docker image
+    ├── src/                    # React source code
+    └── ...
+```
+
+---
+
+## 🔧 Troubleshooting
+
+### Issue: "unable to open database file"
+
+**Cause:** Incorrect DATABASE_URL path
+
+**Solution:**
+```yaml
+# In docker-compose.dev.yml, use absolute path (4 slashes):
+DATABASE_URL=sqlite:////app/instance/ecommerce_dev.db
+```
+
+### Issue: "Directory migrations already exists"
+
+**Cause:** Running `flask db init` when migrations folder exists
+
+**Solution:**
+```bash
+# Skip init and run migrate directly
+docker exec -it ecommerce-backend-dev flask db migrate -m "your_message"
+docker exec -it ecommerce-backend-dev flask db upgrade
+
+# Or delete and start fresh
+docker exec -it ecommerce-backend-dev rm -rf /app/migrations
+docker exec -it ecommerce-backend-dev flask db init
+```
+
+### Issue: Container won't start
+
+**Solution:**
+```bash
+# Check logs
+docker-compose -f docker-compose.dev.yml logs backend
+
+# Verify environment
+docker exec -it ecommerce-backend-dev printenv DATABASE_URL
+```
+
+### Issue: Database Connection Error (PostgreSQL)
+
+**Error:** `OperationalError: could not connect to server`
+
+**Solution:**
+1. Check PostgreSQL is running: `sudo service postgresql status`
+2. Verify database credentials in `.env`
+3. Ensure database exists: `psql -U postgres -c "\l"`
+
+### Issue: JWT Token Expired
+
+**Error:** `401 Unauthorized - Token has expired`
+
+**Solution:**
+Use the refresh token endpoint to get a new access token:
+```
+POST /api/auth/refresh
+Authorization: Bearer <refresh_token>
+```
+
+### Issue: Image Upload Fails
+
+**Error:** `413 Request Entity Too Large`
+
+**Solution:**
+Check `MAX_CONTENT_LENGTH` in `.env` (default: 5MB)
+
+### Issue: Permission Denied
+
+**Error:** `403 Forbidden - Insufficient permissions`
+
+**Solution:**
+- Verify you're logged in with correct role
+- Check role permissions in documentation
+- Admin account may be required
+
+### Issue: Changes not reflecting in container
+
+**Solution:**
+```bash
+# Volume mounts should auto-sync, but if not:
+docker-compose -f docker-compose.dev.yml restart backend
+
+# Or rebuild
+docker-compose -f docker-compose.dev.yml up -d --build
+```
+
+---
+
+## 📝 API Status Codes
+
+| Code | Meaning | Description |
+|------|---------|-------------|
+| 200 | OK | Request successful |
+| 201 | Created | Resource created successfully |
+| 400 | Bad Request | Invalid request data |
+| 401 | Unauthorized | Authentication required or failed |
+| 403 | Forbidden | Insufficient permissions |
+| 404 | Not Found | Resource not found |
+| 500 | Internal Server Error | Server error occurred |
+
+---
+
+## 🔐 Security Best Practices
+
+1. **Environment Variables**: Never commit `.env` file to version control
+2. **JWT Secrets**: Use strong, random secrets in production
+3. **Password Policy**: Enforce minimum 8 characters
+4. **HTTPS**: Always use HTTPS in production
+5. **CORS**: Configure allowed origins properly
+6. **Rate Limiting**: Implement rate limiting on sensitive endpoints
+7. **Input Validation**: All inputs are validated using Marshmallow schemas
+8. **SQL Injection**: Protected by SQLAlchemy ORM
+9. **Image Upload**: Files validated for type and size
+
+---
+
+## 🚀 Production Deployment
+
+### Environment Variables for Production
+
+```env
+FLASK_ENV=production
+SECRET_KEY=<strong-random-key>
+JWT_SECRET_KEY=<strong-random-key>
+DATABASE_URL=postgresql://user:password@host:5432/database
+```
+
+### Deploy to Render/Heroku
+
+1. Push code to GitHub
+2. Connect repository to Render/Heroku
+3. Set environment variables
+4. Deploy
+
+### Using Docker in Production
+
+```bash
+# Build production image
+docker build -t flask-ecommerce .
+
+# Run with production settings
+docker run -p 5000:5000 \
+  -e FLASK_ENV=production \
+  -e DATABASE_URL=postgresql://... \
+  -e SECRET_KEY=your-secret \
+  -e JWT_SECRET_KEY=your-jwt-secret \
+  flask-ecommerce
+```
+
+---
+
+## 📞 Support
+
+For issues or questions:
+1. Check this README
+2. Review API documentation above
+3. Test with Postman collection
+4. Check application logs: `docker-compose logs backend`
+
+---
+
+## 📄 License
+
+[Your License Here]
+
+---
+
+## 👥 Contributors
+
+[Your Name/Team]
+
+---
+
+**Last Updated:** February 2026

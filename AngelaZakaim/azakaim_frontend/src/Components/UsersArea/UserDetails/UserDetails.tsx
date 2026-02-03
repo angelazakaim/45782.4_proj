@@ -1,6 +1,7 @@
 // UserDetails.tsx - FIXED with all imports and proper navigation
 import { useEffect, useState } from "react";
 import { useParams, useNavigate, Navigate } from "react-router-dom";
+import "./UserDetails.css";
 import { usersService } from "../../../Services/UsersService";
 import { notificationService } from "../../../Services/NotificationService";
 import { useHasRole } from "../../../Utils/useHasRole";
@@ -8,9 +9,9 @@ import { UserRole } from "../../../Models/Enums";
 import type { UserWithProfile } from "../../../Models/User";
 import type { Customer } from "../../../Models/Customer";
 import type { Employee } from "../../../Models/Employee";
-import { CustomerProfileDisplay } from "../../UsersArea/Customerprofiledisplay/Customerprofiledisplay";
-import { EmployeeProfileDisplay } from "../../UsersArea/Employeeprofiledisplay/Employeeprofiledisplay";
-import "./UserDetails.css";
+import { EmployeeProfileDisplay } from "../EmployeeProfileDisplay/EmployeeProfileDisplay";
+import { CustomerProfileDisplay } from "../CustomerProfileDisplay/CustomerProfileDisplay";
+
 
 export function UserDetails() {
     const isAdmin = useHasRole([UserRole.ADMIN]);
