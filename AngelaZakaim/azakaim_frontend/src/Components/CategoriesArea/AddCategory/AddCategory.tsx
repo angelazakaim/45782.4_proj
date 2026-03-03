@@ -6,9 +6,14 @@ import "./AddCategory.css";
 import categoriesService from "../../../Services/CategoriesService";
 import { type Category, type CategoryCreate } from "../../../Models/Category";
 import { notificationService } from "../../../Services/NotificationService";
+import { useForceLoggedUser } from "../../../Utils/forceLoggedInHook";
+import { UserRole } from "../../../Models/Enums";
 
 
 export function AddCategory() {
+    // Subcategory creation is manager+, root category creation is admin-only.
+    // Backend enforces the distinction; here we allow both roles to reach the form.
+    useForceLoggedUser("Login required", [UserRole.ADMIN, UserRole.MANAGER]);
     const navigate = useNavigate();
     const { parentId } = useParams<{ parentId: string }>();
     

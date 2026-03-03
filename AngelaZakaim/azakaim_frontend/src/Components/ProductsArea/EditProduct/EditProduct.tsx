@@ -5,10 +5,13 @@ import type { Product } from "../../../Models/Product";
 import type { Category } from "../../../Models/Category";
 import productService from "../../../Services/ProductsService";
 import { notificationService } from "../../../Services/NotificationService";
-import { config } from "../../../Utils/Config"; // Added config import
+import { config } from "../../../Utils/Config";
+import { useForceLoggedUser } from "../../../Utils/forceLoggedInHook";
+import { UserRole } from "../../../Models/Enums";
 import "./EditProduct.css";
 
 export function EditProduct() {
+    useForceLoggedUser("Login required", [UserRole.ADMIN, UserRole.MANAGER]);
     const { prodId } = useParams();
     const id = Number(prodId);
     const navigate = useNavigate();

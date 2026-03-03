@@ -5,10 +5,12 @@ import type { Product } from "../../../Models/Product";
 import type { Category } from "../../../Models/Category";
 import productService from "../../../Services/ProductsService";
 import { notificationService } from "../../../Services/NotificationService";
+import { useForceLoggedUser } from "../../../Utils/forceLoggedInHook";
+import { UserRole } from "../../../Models/Enums";
 import "./AddProduct.css";
 
 export function AddProduct() {
-    console.log(1);
+    useForceLoggedUser("Login required", [UserRole.ADMIN, UserRole.MANAGER]);
     const navigate = useNavigate();
     const [categories, setCategories] = useState<Category[]>([]);
 

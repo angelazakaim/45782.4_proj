@@ -5,9 +5,12 @@ import { useForm } from "react-hook-form";
 import categoriesService from "../../../Services/CategoriesService";
 import { type Category, type CategoryUpdate } from "../../../Models/Category";
 import { notificationService } from "../../../Services/NotificationService";
+import { useForceLoggedUser } from "../../../Utils/forceLoggedInHook";
+import { UserRole } from "../../../Models/Enums";
 import "./EditCategory.css";
 
 export function EditCategory() {
+    useForceLoggedUser("Login required", [UserRole.ADMIN, UserRole.MANAGER]);
     const navigate = useNavigate();
     const { id } = useParams<{ id: string }>();
     
