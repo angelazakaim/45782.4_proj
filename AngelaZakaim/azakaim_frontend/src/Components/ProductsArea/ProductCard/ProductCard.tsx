@@ -15,7 +15,7 @@ interface productProps {
 export function ProductCard({ product: { id, name, price, compare_price, stock_quantity, image_url, is_active } }: productProps) {
     const navigate = useNavigate();
 
-    const isStaff = useHasRole([UserRole.ADMIN, UserRole.MANAGER]);
+    const isStaff = useHasRole([UserRole.ADMIN, UserRole.MANAGER, UserRole.CASHIER]);
 
     async function handleAddToCart(e: React.MouseEvent) {
         e.stopPropagation(); 

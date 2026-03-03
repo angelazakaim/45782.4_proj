@@ -16,8 +16,13 @@ export function NavBar() {
         return () => unsubscribe();
     }, []);
 
-    const isAdmin   = useHasRole([UserRole.ADMIN]);
-    const isManager = useHasRole([UserRole.MANAGER]);
+    const isAdmin    = useHasRole([UserRole.ADMIN]);
+    const isManager  = useHasRole([UserRole.MANAGER]);
+    const isCashier  = useHasRole([UserRole.CASHIER]);
+
+    const ordersLabel = (isAdmin || isManager) ? "Orders"
+                      : isCashier              ? "Today's Orders"
+                      :                          "My Orders";
 
     return (
         <nav className="NavBar">
@@ -25,12 +30,13 @@ export function NavBar() {
             <NavLink to='/products'>Products</NavLink>
             <NavLink to='/categories'>Categories</NavLink>
 
-            {/* ADMIN: Admin Panel + sub-links */}
+            {/* ADMIN: Admin Panel */}
             {isAdmin && (
                 <NavLink to='/users'>Admin Panel</NavLink>
             )}
 
-            {isAdmin && (
+            {/* MANAGER+: Customers & Employees */}
+            {(isAdmin || isManager) && (
                 <>
                     <NavLink to='/customers'>Customers</NavLink>
                     <NavLink to='/employees'>Employees</NavLink>
@@ -39,9 +45,7 @@ export function NavBar() {
 
             {/* Orders link — label changes by role */}
             {isLoggedIn && (
-                <NavLink to='/orders'>
-                    {(isAdmin || isManager) ? "Orders" : "My Orders"}
-                </NavLink>
+                <NavLink to='/orders'>{ordersLabel}</NavLink>
             )}
 
             {/* Everyone logged in: My Profile */}

@@ -81,6 +81,32 @@ export const ordersService = {
         }
     },
 
+    // ── Staff endpoints (Cashier, Manager, Admin) ────────────────────
+
+    // GET /api/orders/today  — today's orders (staff)
+    async getTodayOrders(): Promise<{ orders: Order[]; total: number; date: string }> {
+        try {
+            const { data } = await axios.get(`${config.ORDERS_API_URL}/today`);
+            return data;
+        } catch (error) {
+            notificationService.error(error);
+            throw error;
+        }
+    },
+
+    // GET /api/orders/search?number=xxx  — search by order number (staff)
+    async searchOrderByNumber(orderNumber: string): Promise<Order> {
+        try {
+            const { data } = await axios.get(`${config.ORDERS_API_URL}/search`, {
+                params: { number: orderNumber }
+            });
+            return data;
+        } catch (error) {
+            notificationService.error(error);
+            throw error;
+        }
+    },
+
     // ── Manager / Admin endpoints ──────────────────────────────────────
 
     // GET /api/orders/admin  — all orders with optional status filter

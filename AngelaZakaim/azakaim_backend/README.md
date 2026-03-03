@@ -595,14 +595,18 @@ Customer (Shopping, cart, own orders)
 | Update Category | - | - | Y | Y |
 | Delete Category | - | - | - | Y |
 | **Cart** |
-| Manage Own Cart | Y | Y | Y | Y |
+| Manage Own Cart | Y | - | - | - |
 | **Orders** |
-| Create Order | Y | Y | Y | Y |
+| Create Order | Y | - | - | - |
 | View Own Orders | Y | - | - | - |
 | Cancel Own Order | Y | - | - | - |
 | View Today's Orders | - | Y | Y | Y |
-| Update Order Status | - | Y | Y | Y |
-| View All Orders | - | - | Y* | Y |
+| Search by Order # | - | Y | Y | Y |
+| Update Order Status | - | Y* | Y | Y |
+| Update Payment Status | - | Y** | Y | Y |
+| Mark as Shipped | - | - | Y | Y |
+| Add Notes | - | - | Y | Y |
+| View All Orders | - | - | Y*** | Y |
 | Process Refund | - | - | - | Y |
 | Delete Order | - | - | - | Y |
 | **Users** |
@@ -613,7 +617,9 @@ Customer (Shopping, cart, own orders)
 | Manage Users | - | - | - | Y |
 | Change Roles | - | - | - | Y |
 
-*Manager can view last 30 days only
+\*Cashier limited to confirmed/processing only
+\*\*Cashier limited to pending/paid/failed (no refunded)
+\*\*\*Manager can view last 30 days only
 
 ---
 
@@ -634,9 +640,11 @@ The collection includes these variables:
 
 ### 3. Quick Start
 
-1. **Register** - `POST /api/auth/register` - Create accounts for different roles
-2. **Login** - `POST /api/auth/login` - Tokens are auto-saved
-3. **Test** - All subsequent requests use the saved access token
+1. **Seed** - Run `flask seed` to create default admin + sample data (or use the seed endpoint)
+2. **Register** - `POST /api/auth/register` - Create **customer** accounts (public registration is customer-only)
+3. **Create Staff** - Login as admin, then use `POST /api/users` to create cashier/manager accounts
+4. **Login** - `POST /api/auth/login` - Tokens are auto-saved
+5. **Test** - All subsequent requests use the saved access token
 
 ### 4. Test Different Roles
 

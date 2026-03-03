@@ -1,7 +1,8 @@
 // Orders.tsx
-// Two distinct views sharing one route:
-//   • Regular user  → own orders, last 3 months only
-//   • Admin/Manager → full management panel: search, date range, status tabs
+// Three distinct views sharing one route:
+//   • Customer       → own orders, last 3 months only
+//   • Cashier        → today's orders + search by order number
+//   • Admin/Manager  → full management panel: search, date range, status tabs
 import { useEffect, useState, useMemo } from "react";
 import "./Orders.css";
 import { OrderCard } from "../OrderCard/OrderCard";
@@ -16,30 +17,37 @@ const ALL_STATUSES = ["pending", "confirmed", "processing", "shipped", "delivere
 export function Orders() {
     useForceLoggedUser();
 
-    const isAdmin  = useHasRole([UserRole.ADMIN]);
-    const isManager = useHasRole([UserRole.MANAGER]);
-    const isStaff  = isAdmin || isManager;
+    const isAdmin      = useHasRole([UserRole.ADMIN]);
+    const isManager    = useHasRole([UserRole.MANAGER]);
+    const isCashier    = useHasRole([UserRole.CASHIER]);
+    const isManagement = isAdmin || isManager;
 
     const [orders, setOrders]           = useState<Order[]>([]);
     const [loading, setLoading]         = useState(true);
 
-    // ── Admin filter state ──────────────────────────────────────────
+    // ── Admin/Manager filter state ───────────────────────────────
     const [customerSearch, setCustomerSearch] = useState("");
     const [startDate, setStartDate]           = useState("");
     const [endDate, setEndDate]               = useState("");
     const [statusFilter, setStatusFilter]     = useState("all");
 
+    // ── Cashier search state ─────────────────────────────────────
+    const [orderNumberSearch, setOrderNumberSearch] = useState("");
+    const [searchedOrder, setSearchedOrder]         = useState<Order | null>(null);
+    const [searching, setSearching]                 = useState(false);
+
     // ── Fetch ───────────────────────────────────────────────────────
     useEffect(() => {
         (async () => {
             try {
-                if (isStaff) {
-                    // /admin returns orders WITH customer object
+                if (isManagement) {
                     const res = await ordersService.getAllOrders();
+                    setOrders(res.orders);
+                } else if (isCashier) {
+                    const res = await ordersService.getTodayOrders();
                     setOrders(res.orders);
                 } else {
                     const res = await ordersService.getMyOrders();
-                    // Limit to last 3 months client-side
                     const cutoff = new Date();
                     cutoff.setMonth(cutoff.getMonth() - 3);
                     setOrders(res.orders.filter(o => new Date(o.created_at) >= cutoff));
@@ -50,16 +58,30 @@ export function Orders() {
                 setLoading(false);
             }
         })();
-    }, [isStaff]);
+    }, [isManagement, isCashier]);
 
-    // ── Derived filtered sets (admin only) ─────────────────────────
-    // Step 1: customer search + date range  →  used for status-tab counts
+    // ── Cashier: search by order number ─────────────────────────
+    async function handleOrderSearch() {
+        const q = orderNumberSearch.trim();
+        if (!q) return;
+        setSearching(true);
+        setSearchedOrder(null);
+        try {
+            const order = await ordersService.searchOrderByNumber(q);
+            setSearchedOrder(order);
+        } catch {
+            /* toast already shown by service */
+        } finally {
+            setSearching(false);
+        }
+    }
+
+    // ── Derived filtered sets (management only) ──────────────────
     const preStatusFiltered = useMemo(() => {
-        if (!isStaff) return orders;
+        if (!isManagement) return orders;
 
         let result = orders;
 
-        // search across customer name, email AND order number
         if (customerSearch.trim()) {
             const q = customerSearch.trim().toLowerCase();
             result = result.filter(o => {
@@ -81,23 +103,22 @@ export function Orders() {
         }
 
         return result;
-    }, [orders, customerSearch, startDate, endDate, isStaff]);
+    }, [orders, customerSearch, startDate, endDate, isManagement]);
 
-    // Step 2: apply status on top  →  what actually renders
     const displayedOrders = useMemo(() => {
-        if (!isStaff) return orders;
+        if (!isManagement) return orders;
         return statusFilter === "all"
             ? preStatusFiltered
             : preStatusFiltered.filter(o => o.status === statusFilter);
-    }, [preStatusFiltered, statusFilter, isStaff, orders]);
+    }, [preStatusFiltered, statusFilter, isManagement, orders]);
 
     // ── Loading ─────────────────────────────────────────────────────
-    if (loading) return <div className="Orders"><p className="orders-loading">Loading orders…</p></div>;
+    if (loading) return <div className="Orders"><p className="orders-loading">Loading orders...</p></div>;
 
-    // ═══════════════════════════════════════════════════════════════
+    // =================================================================
     // ADMIN / MANAGER VIEW
-    // ═══════════════════════════════════════════════════════════════
-    if (isStaff) {
+    // =================================================================
+    if (isManagement) {
         return (
             <div className="Orders">
                 <h2>Orders Management</h2>
@@ -108,7 +129,7 @@ export function Orders() {
                         <label>Customer / Order #</label>
                         <input
                             type="text"
-                            placeholder="Name, email or order number…"
+                            placeholder="Name, email or order number..."
                             value={customerSearch}
                             onChange={e => setCustomerSearch(e.target.value)}
                         />
@@ -156,7 +177,6 @@ export function Orders() {
                 {/* ── Order list ──────────────────────────────────── */}
                 {displayedOrders.length === 0 ? (
                     <div className="orders-empty">
-                        <p className="orders-empty-icon">🔍</p>
                         <p>No orders match your filters.</p>
                     </div>
                 ) : (
@@ -168,9 +188,65 @@ export function Orders() {
         );
     }
 
-    // ═══════════════════════════════════════════════════════════════
-    // REGULAR USER VIEW  (own orders, last 3 months)
-    // ═══════════════════════════════════════════════════════════════
+    // =================================================================
+    // CASHIER VIEW  (today's orders + search by order number)
+    // =================================================================
+    if (isCashier) {
+        return (
+            <div className="Orders">
+                <h2>Today's Orders</h2>
+
+                {/* ── Search by order number ──────────────────────── */}
+                <div className="orders-filters">
+                    <div className="orders-filter-group orders-filter-search">
+                        <label>Look up order</label>
+                        <input
+                            type="text"
+                            placeholder="Enter order number..."
+                            value={orderNumberSearch}
+                            onChange={e => setOrderNumberSearch(e.target.value)}
+                            onKeyDown={e => e.key === "Enter" && handleOrderSearch()}
+                        />
+                    </div>
+                    <button className="orders-clear-btn" onClick={handleOrderSearch} disabled={searching}>
+                        {searching ? "Searching..." : "Search"}
+                    </button>
+                    {searchedOrder && (
+                        <button className="orders-clear-btn" onClick={() => { setSearchedOrder(null); setOrderNumberSearch(""); }}>
+                            Clear
+                        </button>
+                    )}
+                </div>
+
+                {/* ── Search result ───────────────────────────────── */}
+                {searchedOrder && (
+                    <div className="orders-list">
+                        <p className="orders-results-info">Search result:</p>
+                        <OrderCard order={searchedOrder} />
+                    </div>
+                )}
+
+                {/* ── Today's orders ──────────────────────────────── */}
+                <p className="orders-results-info">
+                    {orders.length} order{orders.length !== 1 ? "s" : ""} today
+                </p>
+
+                {orders.length === 0 ? (
+                    <div className="orders-empty">
+                        <p>No orders placed today yet.</p>
+                    </div>
+                ) : (
+                    <div className="orders-list">
+                        {orders.map(order => <OrderCard key={order.id} order={order} />)}
+                    </div>
+                )}
+            </div>
+        );
+    }
+
+    // =================================================================
+    // CUSTOMER VIEW  (own orders, last 3 months)
+    // =================================================================
     return (
         <div className="Orders">
             <h2>My Orders</h2>
@@ -178,7 +254,6 @@ export function Orders() {
 
             {displayedOrders.length === 0 ? (
                 <div className="orders-empty">
-                    <p className="orders-empty-icon">📦</p>
                     <h3>No orders yet</h3>
                     <p>Your order history will appear here after your first purchase.</p>
                 </div>

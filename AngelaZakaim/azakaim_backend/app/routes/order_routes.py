@@ -320,11 +320,11 @@ def update_payment_status(order_id):
 
 @order_bp.route('/<int:order_id>/ship', methods=['POST'])
 @jwt_required()
-@staff_required
+@manager_required
 def mark_as_shipped(order_id):
     """
     Mark order as shipped.
-    STAFF - Any staff member can mark orders as shipped.
+    MANAGER OR ADMIN - Only managers and admins can ship orders.
     """
     try:
         data = request.get_json(silent=True) or {}

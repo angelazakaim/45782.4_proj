@@ -1,8 +1,8 @@
 // OrderDetails.tsx
-// Single order page.
-// Customer: sees items, pricing, address, payment, can cancel if status allows.
-// Admin/Manager: everything above PLUS an admin-actions panel at the bottom
-//   (status update, payment-status update, notes, refund & delete for admin).
+// Single order page with role-specific action panels:
+//   Customer:      sees items, pricing, address, payment, can cancel if status allows
+//   Cashier:       above + limited actions (status: confirmed/processing, payment status)
+//   Manager/Admin: above + full actions (ship, notes, all statuses, refund/delete for admin)
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import "./OrderDetails.css";
@@ -25,6 +25,11 @@ const STATUS_CLASS: Record<string, string> = {
 const ORDER_STATUSES   = ["pending", "confirmed", "processing", "shipped", "delivered", "cancelled", "refunded"];
 const PAYMENT_STATUSES = ["pending", "paid", "failed", "refunded"];
 
+// Cashier can only set these order statuses (backend enforces the same rule)
+const CASHIER_ALLOWED_STATUSES  = ["confirmed", "processing"];
+// Cashier can set these payment statuses (backend blocks "refunded" for non-admin)
+const CASHIER_ALLOWED_PAY       = ["pending", "paid", "failed"];
+
 // Customer may cancel in any of these states; backend enforces the same rule.
 const CANCELLABLE = ["pending", "confirmed", "processing", "shipped"];
 
@@ -35,14 +40,16 @@ export function OrderDetails() {
     const { orderId }   = useParams();
     const id            = Number(orderId);
 
-    const isAdmin   = useHasRole([UserRole.ADMIN]);
-    const isManager = useHasRole([UserRole.MANAGER]);
-    const isStaff   = isAdmin || isManager;
+    const isAdmin      = useHasRole([UserRole.ADMIN]);
+    const isManager    = useHasRole([UserRole.MANAGER]);
+    const isCashier    = useHasRole([UserRole.CASHIER]);
+    const isManagement = isAdmin || isManager;
+    const isStaff      = isManagement || isCashier;
 
     const [order, setOrder]                       = useState<Order | null>(null);
     const [loading, setLoading]                   = useState(true);
 
-    // admin action local state
+    // action local state
     const [newStatus, setNewStatus]               = useState("");
     const [newPayStatus, setNewPayStatus]         = useState("");
     const [noteText, setNoteText]                 = useState("");
@@ -72,7 +79,7 @@ export function OrderDetails() {
         } catch { /* toast shown */ }
     }
 
-    // ── Admin: update order status ────────────────────────────────
+    // ── Staff: update order status ─────────────────────────────────
     async function handleUpdateStatus() {
         if (!order || newStatus === order.status) return;
         try {
@@ -83,7 +90,7 @@ export function OrderDetails() {
         }
     }
 
-    // ── Admin: update payment status ──────────────────────────────
+    // ── Staff: update payment status ───────────────────────────────
     async function handleUpdatePayStatus() {
         if (!order || newPayStatus === order.payment_status) return;
         try {
@@ -94,7 +101,7 @@ export function OrderDetails() {
         }
     }
 
-    // ── Admin: add internal note ──────────────────────────────────
+    // ── Manager+: add internal note ────────────────────────────────
     async function handleAddNote() {
         if (!noteText.trim()) return;
         try {
@@ -126,11 +133,15 @@ export function OrderDetails() {
     }
 
     // ── Render guards ─────────────────────────────────────────────
-    if (loading || !order) return <div className="OrderDetails"><p>Loading…</p></div>;
+    if (loading || !order) return <div className="OrderDetails"><p>Loading...</p></div>;
 
     const canCancel = !isStaff && CANCELLABLE.includes(order.status);
 
-    // ═══════════════════════════════════════════════════════════════
+    // Status options depend on role
+    const availableStatuses = isCashier ? CASHIER_ALLOWED_STATUSES : ORDER_STATUSES;
+    const availablePayStatuses = isCashier ? CASHIER_ALLOWED_PAY : PAYMENT_STATUSES;
+
+    // =================================================================
     return (
         <div className="OrderDetails">
 
@@ -169,7 +180,7 @@ export function OrderDetails() {
                                 {item.product_sku && <span className="od-item-sku">SKU: {item.product_sku}</span>}
                             </div>
                             <div className="od-item-pricing">
-                                <span className="od-item-qty">×{item.quantity}</span>
+                                <span className="od-item-qty">x{item.quantity}</span>
                                 <span className="od-item-unit">${item.unit_price.toFixed(2)} ea</span>
                                 <span className="od-item-total">${item.total_price.toFixed(2)}</span>
                             </div>
@@ -215,8 +226,8 @@ export function OrderDetails() {
                 </div>
             )}
 
-            {/* admin notes (rendered as a distinct block) */}
-            {order.admin_notes && (
+            {/* admin notes (visible to all staff) */}
+            {isStaff && order.admin_notes && (
                 <div className="od-section">
                     <h3>Admin Notes</h3>
                     <p className="od-notes od-notes-admin">{order.admin_notes}</p>
@@ -224,18 +235,18 @@ export function OrderDetails() {
             )}
 
             {/* ══════════════════════════════════════════════════════
-                ADMIN / MANAGER ACTIONS PANEL
+                STAFF ACTIONS PANEL
                 ══════════════════════════════════════════════════ */}
             {isStaff && (
                 <div className="od-section od-admin-panel">
-                    <h3>⚙️ Admin Actions</h3>
+                    <h3>{isCashier ? "Order Actions" : "Management Actions"}</h3>
 
                     {/* order status */}
                     <div className="od-admin-row">
-                        <label>Order Status</label>
+                        <label>Order Status{isCashier && " (confirmed / processing)"}</label>
                         <div className="od-admin-input-group">
                             <select value={newStatus} onChange={e => setNewStatus(e.target.value)}>
-                                {ORDER_STATUSES.map(s => <option key={s} value={s}>{s}</option>)}
+                                {availableStatuses.map(s => <option key={s} value={s}>{s}</option>)}
                             </select>
                             <button className="od-admin-btn" onClick={handleUpdateStatus} disabled={newStatus === order.status}>
                                 Update
@@ -248,7 +259,7 @@ export function OrderDetails() {
                         <label>Payment Status</label>
                         <div className="od-admin-input-group">
                             <select value={newPayStatus} onChange={e => setNewPayStatus(e.target.value)}>
-                                {PAYMENT_STATUSES.map(s => <option key={s} value={s}>{s}</option>)}
+                                {availablePayStatuses.map(s => <option key={s} value={s}>{s}</option>)}
                             </select>
                             <button className="od-admin-btn" onClick={handleUpdatePayStatus} disabled={newPayStatus === order.payment_status}>
                                 Update
@@ -256,21 +267,23 @@ export function OrderDetails() {
                         </div>
                     </div>
 
-                    {/* add note */}
-                    <div className="od-admin-row">
-                        <label>Add Note</label>
-                        <div className="od-admin-note-group">
-                            <textarea
-                                rows={2}
-                                placeholder="Internal note…"
-                                value={noteText}
-                                onChange={e => setNoteText(e.target.value)}
-                            />
-                            <button className="od-admin-btn" onClick={handleAddNote} disabled={!noteText.trim()}>
-                                Add Note
-                            </button>
+                    {/* add note — manager+ only */}
+                    {isManagement && (
+                        <div className="od-admin-row">
+                            <label>Add Note</label>
+                            <div className="od-admin-note-group">
+                                <textarea
+                                    rows={2}
+                                    placeholder="Internal note..."
+                                    value={noteText}
+                                    onChange={e => setNoteText(e.target.value)}
+                                />
+                                <button className="od-admin-btn" onClick={handleAddNote} disabled={!noteText.trim()}>
+                                    Add Note
+                                </button>
+                            </div>
                         </div>
-                    </div>
+                    )}
 
                     {/* danger zone — admin only */}
                     {isAdmin && (
