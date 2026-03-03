@@ -18,6 +18,7 @@ export function Categories() {
     const [showRootOnly, setShowRootOnly] = useState<boolean>(false);
 
     const isAdmin = useHasRole([UserRole.ADMIN]);
+    const isManager = useHasRole([UserRole.MANAGER]);
 
     useEffect(() => {
         loadCategories();
@@ -53,7 +54,7 @@ export function Categories() {
         <div className="Categories">
             <header className="categories-header">
                 <h2>Category Management</h2>
-                {isAdmin && <><div className="header-actions">
+                {(isAdmin || isManager) && <><div className="header-actions">
                     <NavLink to="/categories/add" className="btn-add">
                         + Add Category
                     </NavLink>
