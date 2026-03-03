@@ -71,6 +71,14 @@ class CategoriesService {
     }
 
     /**
+     * Reorder categories — change parent assignments (Admin only)
+     * PUT /api/categories/reorder
+     */
+    async reorderCategories(updates: { id: number; parent_id: number | null }[]): Promise<void> {
+        await axios.put(`${config.CATEGORIES_API_URL}/reorder`, { updates });
+    }
+
+    /**
      * Get only root categories (no parent)
      */
     async getRootCategories(): Promise<Category[]> {

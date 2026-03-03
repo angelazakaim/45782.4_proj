@@ -20,6 +20,11 @@ export function Categories() {
     const isAdmin = useHasRole([UserRole.ADMIN]);
     const isManager = useHasRole([UserRole.MANAGER]);
 
+    // ── Reorder mode (admin only) ────────────────────────────────────
+    const [reorderMode, setReorderMode] = useState(false);
+    const [pendingMoves, setPendingMoves] = useState<Map<number, number | null>>(new Map());
+    const [saving, setSaving] = useState(false);
+
     useEffect(() => {
         loadCategories();
     }, [showRootOnly]);
@@ -36,6 +41,48 @@ export function Categories() {
         }
     };
 
+    // Enter reorder mode — force tree view, clear search
+    function enterReorder() {
+        setReorderMode(true);
+        setViewMode('tree');
+        setSearchTerm('');
+        setShowRootOnly(false);
+        setPendingMoves(new Map());
+    }
+
+    function cancelReorder() {
+        setReorderMode(false);
+        setPendingMoves(new Map());
+    }
+
+    function handleParentChange(categoryId: number, originalParentId: number | null, newParentId: number | null) {
+        setPendingMoves(prev => {
+            const next = new Map(prev);
+            if (newParentId === originalParentId) {
+                next.delete(categoryId); // reverted — remove from pending
+            } else {
+                next.set(categoryId, newParentId);
+            }
+            return next;
+        });
+    }
+
+    async function saveReorder() {
+        if (pendingMoves.size === 0) return;
+        setSaving(true);
+        try {
+            const updates = Array.from(pendingMoves.entries()).map(([id, parent_id]) => ({ id, parent_id }));
+            await categoriesService.reorderCategories(updates);
+            notificationService.success(`${updates.length} category(ies) moved successfully`);
+            setReorderMode(false);
+            setPendingMoves(new Map());
+            await loadCategories(); // refresh
+        } catch (err: any) {
+            notificationService.error(err.response?.data?.error || 'Failed to reorder categories');
+        } finally {
+            setSaving(false);
+        }
+    }
 
     // Filter categories by search term
     const filteredCategories = categories.filter(cat =>
@@ -54,56 +101,81 @@ export function Categories() {
         <div className="Categories">
             <header className="categories-header">
                 <h2>Category Management</h2>
-                {(isAdmin || isManager) && <><div className="header-actions">
-                    <NavLink to="/categories/add" className="btn-add">
-                        + Add Category
-                    </NavLink>
-                </div></>}
-            </header>
-
-            <div className="categories-controls">
-                <div className="search-box">
-                    <input
-                        type="text"
-                        placeholder="Search categories..."
-                        value={searchTerm}
-                        onChange={(e) => setSearchTerm(e.target.value)}
-                        className="search-input"
-                    />
-                    {searchTerm && (
-                        <button
-                            onClick={() => setSearchTerm('')}
-                            className="clear-search"
-                        >
-                            Clear
+                <div className="header-actions">
+                    {(isAdmin || isManager) && !reorderMode && (
+                        <NavLink to="/categories/add" className="btn-add">
+                            + Add Category
+                        </NavLink>
+                    )}
+                    {isAdmin && !reorderMode && (
+                        <button className="btn-reorder" onClick={enterReorder}>
+                            Reorder
                         </button>
                     )}
                 </div>
+            </header>
 
-                <div className="view-controls">
-                    <button
-                        className={`view-btn ${viewMode === 'flat' ? 'active' : ''}`}
-                        onClick={() => setViewMode('flat')}
-                    >
-                        List View
-                    </button>
-                    <button
-                        className={`view-btn ${viewMode === 'tree' ? 'active' : ''}`}
-                        onClick={() => setViewMode('tree')}
-                    >
-                        Tree View
-                    </button>
+            {/* ── Reorder toolbar ─────────────────────────────────────── */}
+            {reorderMode && (
+                <div className="reorder-toolbar">
+                    <p className="reorder-info">
+                        Use the dropdowns to change each category's parent.
+                        {pendingMoves.size > 0 && <strong> {pendingMoves.size} change{pendingMoves.size !== 1 ? 's' : ''} pending.</strong>}
+                    </p>
+                    <div className="reorder-actions">
+                        <button className="btn-cancel" onClick={cancelReorder} disabled={saving}>Cancel</button>
+                        <button className="btn-save" onClick={saveReorder} disabled={pendingMoves.size === 0 || saving}>
+                            {saving ? 'Saving...' : 'Save Changes'}
+                        </button>
+                    </div>
                 </div>
+            )}
 
-                <label className="checkbox-label">
-                    <input
-                        type="checkbox"
-                        checked={showRootOnly}
-                        onChange={(e) => setShowRootOnly(e.target.checked)}
-                    />
-                    Show root categories only
-                </label>
-            </div>
+            {!reorderMode && (
+                <div className="categories-controls">
+                    <div className="search-box">
+                        <input
+                            type="text"
+                            placeholder="Search categories..."
+                            value={searchTerm}
+                            onChange={(e) => setSearchTerm(e.target.value)}
+                            className="search-input"
+                        />
+                        {searchTerm && (
+                            <button
+                                onClick={() => setSearchTerm('')}
+                                className="clear-search"
+                            >
+                                Clear
+                            </button>
+                        )}
+                    </div>
+
+                    <div className="view-controls">
+                        <button
+                            className={`view-btn ${viewMode === 'flat' ? 'active' : ''}`}
+                            onClick={() => setViewMode('flat')}
+                        >
+                            List View
+                        </button>
+                        <button
+                            className={`view-btn ${viewMode === 'tree' ? 'active' : ''}`}
+                            onClick={() => setViewMode('tree')}
+                        >
+                            Tree View
+                        </button>
+                    </div>
+
+                    <label className="checkbox-label">
+                        <input
+                            type="checkbox"
+                            checked={showRootOnly}
+                            onChange={(e) => setShowRootOnly(e.target.checked)}
+                        />
+                        Show root categories only
+                    </label>
+                </div>
+            )}
 
             <div className="categories-stats">
                 <p>Total Categories: {categories.length}</p>
@@ -120,7 +192,9 @@ export function Categories() {
                     {viewMode === 'tree' ? (
                         <CategoryTreeView
                             categories={categoryTree}
-
+                            allCategories={reorderMode ? categories : undefined}
+                            pendingMoves={reorderMode ? pendingMoves : undefined}
+                            onParentChange={reorderMode ? handleParentChange : undefined}
                         />
                     ) : (
                         <div className="categories-grid">
@@ -128,7 +202,6 @@ export function Categories() {
                                 <CategoryCard
                                     key={category.id}
                                     category={category}
-
                                 />
                             ))}
                         </div>
@@ -139,31 +212,68 @@ export function Categories() {
     );
 }
 
-// Tree view component for hierarchical display
+// ── Tree view component ──────────────────────────────────────────────
 interface CategoryTreeViewProps {
     categories: Category[];
     level?: number;
+    allCategories?: Category[];
+    pendingMoves?: Map<number, number | null>;
+    onParentChange?: (id: number, originalParent: number | null, newParent: number | null) => void;
 }
 
-function CategoryTreeView({ categories, level = 0 }: CategoryTreeViewProps) {
+function CategoryTreeView({ categories, level = 0, allCategories, pendingMoves, onParentChange }: CategoryTreeViewProps) {
     return (
         <div className="category-tree" style={{ marginLeft: level * 20 }}>
-            {categories.map(category => (
-                <div key={category.id} className="category-tree-item">
-                    <CategoryCard
-                        category={category}
+            {categories.map(category => {
+                const isReordering = !!onParentChange;
+                const hasPending = pendingMoves?.has(category.id);
 
-                        isTreeView={true}
-                    />
-                    {category.children && category.children.length > 0 && (
-                        <CategoryTreeView
-                            categories={category.children}
-
-                            level={level + 1}
+                return (
+                    <div key={category.id} className={`category-tree-item ${hasPending ? 'reorder-changed' : ''}`}>
+                        <CategoryCard
+                            category={category}
+                            isTreeView={true}
                         />
-                    )}
-                </div>
-            ))}
+
+                        {/* Reorder: parent dropdown */}
+                        {isReordering && allCategories && (
+                            <div className="reorder-parent-select">
+                                <label>Parent:</label>
+                                <select
+                                    value={
+                                        pendingMoves?.has(category.id)
+                                            ? (pendingMoves.get(category.id) ?? '')
+                                            : (category.parent_id ?? '')
+                                    }
+                                    onChange={e => {
+                                        const val = e.target.value;
+                                        const newParent = val === '' ? null : Number(val);
+                                        onParentChange!(category.id, category.parent_id, newParent);
+                                    }}
+                                >
+                                    <option value="">-- Root (no parent) --</option>
+                                    {allCategories
+                                        .filter(c => c.id !== category.id)
+                                        .map(c => (
+                                            <option key={c.id} value={c.id}>{c.name}</option>
+                                        ))
+                                    }
+                                </select>
+                            </div>
+                        )}
+
+                        {category.children && category.children.length > 0 && (
+                            <CategoryTreeView
+                                categories={category.children}
+                                level={level + 1}
+                                allCategories={allCategories}
+                                pendingMoves={pendingMoves}
+                                onParentChange={onParentChange}
+                            />
+                        )}
+                    </div>
+                );
+            })}
         </div>
     );
 }

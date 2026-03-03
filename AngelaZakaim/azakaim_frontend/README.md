@@ -256,17 +256,28 @@ The store is configured in `src/Redux/store.ts` and provided at the app root in 
 
 Client-side routing is handled by React Router DOM. Routes are defined in the layout component and map to feature components:
 
-| Route | Component | Auth Required |
-|-------|-----------|---------------|
-| `/` | Home | No |
-| `/login` | Login | No |
-| `/register` | Register | No |
-| `/products` | Product Listing | No |
-| `/cart` | Shopping Cart | Yes |
-| `/orders` | Order History | Yes |
-| `/profile` | User Profile | Yes |
-| `/about` | About Us | No |
-| `*` | Not Found (404) | No |
+| Route | Component | Access |
+|-------|-----------|--------|
+| `/` | Home | Public |
+| `/login` | Login | Public |
+| `/register` | Register | Public |
+| `/products` | Product Listing | Public |
+| `/products/add` | Add Product | Manager, Admin |
+| `/products/edit/:id` | Edit Product | Manager, Admin |
+| `/products/details/:id` | Product Details | Public |
+| `/categories` | Category Listing | Public |
+| `/categories/add` | Add Category | Manager, Admin (root categories admin-only on backend) |
+| `/categories/edit/:id` | Edit Category | Manager, Admin |
+| `/categories/details/:id` | Category Details | Public |
+| `/cart` | Shopping Cart | Customer |
+| `/orders` | Orders (role-specific views) | Logged in — Customer: own orders; Cashier: today's orders; Manager/Admin: all orders |
+| `/orders/:id` | Order Details | Logged in (role-specific action panels) |
+| `/customers` | Customer List | Manager, Admin |
+| `/employees` | Employee List | Manager, Admin |
+| `/users` | Admin Panel (User Management) | Admin |
+| `/profile` | User Profile | Logged in |
+| `/about` | About Us | Public |
+| `*` | Not Found (404) | Public |
 
 ---
 

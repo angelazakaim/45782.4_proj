@@ -594,6 +594,7 @@ Customer (Shopping, cart, own orders)
 | Create Subcategory | - | - | Y | Y |
 | Update Category | - | - | Y | Y |
 | Delete Category | - | - | - | Y |
+| Reorder Categories | - | - | - | Y |
 | **Cart** |
 | Manage Own Cart | Y | - | - | - |
 | **Orders** |
