@@ -6,6 +6,7 @@ import type {
     UserWithProfile,
     UsersResponse,
     CustomersResponse,
+    EmployeesResponse,
     UserStatistics,
     UserFilters,
     ProfileUpdateData,
@@ -83,6 +84,22 @@ class UsersService {
         return response.data;
     }
     
+    /**
+     * Get all employees - managers and cashiers (Manager/Admin)
+     * Calls GET /api/users/employees
+     */
+    async getEmployees(
+        page: number = 1,
+        per_page: number = 25,
+        role?: string
+    ): Promise<EmployeesResponse> {
+        const response = await axios.get<EmployeesResponse>(
+            config.USERS_API_URL + '/employees',
+            { params: { page, per_page, role: role || undefined } }
+        );
+        return response.data;
+    }
+
     /**
      * Get all customers (Manager/Admin)
      */

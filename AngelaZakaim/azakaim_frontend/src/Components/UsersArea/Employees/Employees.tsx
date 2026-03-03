@@ -23,17 +23,7 @@ export function Employees() {
         const loadEmployees = async () => {
             setLoading(true);
             try {
-                const response = await usersService.getAllUsers(page, 25, { role_filter: roleFilter || undefined });
-                // Map UsersResponse to EmployeesResponse format
-                const employeesData: EmployeesResponse = {
-                    employees: response.users,
-                    total: response.total,
-                    pages: response.pages,
-                    current_page: response.current_page,
-                    per_page: response.per_page,
-                    has_next: response.has_next,
-                    has_prev: response.has_prev
-                };
+                const employeesData = await usersService.getEmployees(page, 25, roleFilter || undefined);
                 setData(employeesData);
             } catch (err) {
                 console.error("Failed to load employees:", err);
