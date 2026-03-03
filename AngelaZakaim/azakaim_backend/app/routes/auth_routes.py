@@ -23,14 +23,13 @@ def register():
             if field not in data:
                 return jsonify({'error': f'{field} is required'}), 400
         
-        # Extract role (default to customer)
-        role = data.get('role', UserRole.CUSTOMER.value)
-        
-        # Validate role
-        if not UserRole.is_valid(role):
+        # Public registration is customer-only.
+        # Staff/admin accounts must be created by an admin via /api/users endpoints.
+        role = UserRole.CUSTOMER.value
+        if data.get('role') and data['role'] != UserRole.CUSTOMER.value:
             return jsonify({
-                'error': f'Invalid role. Must be one of: {", ".join(UserRole.values())}'
-            }), 400
+                'error': 'Public registration is limited to customer accounts only'
+            }), 403
         
         # Extract profile data based on role
         profile_data = {}
