@@ -4,6 +4,8 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
+basedir = os.path.abspath(os.path.dirname(__file__))
+
 class Config:
     """Base configuration."""
     SECRET_KEY = os.getenv('SECRET_KEY', 'XSXhll9WXqamJ3ADPKyyGxgTqvqY2cd-S9EHs5VzBcsJpduO25L438YlOUi_CqHGbEg')
@@ -30,8 +32,8 @@ class DevelopmentConfig(Config):
     DEBUG = True
     # SQLite for development - database file will be in instance folder
     SQLALCHEMY_DATABASE_URI = os.getenv(
-        'DATABASE_URL', 
-        'sqlite:///instance/ecommerce_dev.db'
+        'DATABASE_URL',
+        'sqlite:///' + os.path.join(basedir, 'instance', 'ecommerce_dev.db')
     )
     SQLALCHEMY_ECHO = True
 
