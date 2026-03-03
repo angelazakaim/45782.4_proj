@@ -54,6 +54,7 @@ export function Routing() {
                 {/* Categories */}
                 <Route path="/categories" element={<Categories />} />
                 <Route path="/categories/add" element={<AddCategory />} />
+                <Route path="/categories/add/:parentId" element={<AddCategory />} />
                 <Route path="/categories/edit/:id" element={<EditCategory />} />
                 <Route path="/categories/details/:id" element={<CategoryDetails />} />
 

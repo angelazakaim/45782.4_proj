@@ -69,9 +69,11 @@ export function AddCategory() {
 
             let newCategory: Category;
 
-            if (parentId) {
+            const effectiveParentId = parentId ? parseInt(parentId) : (dataToSend.parent_id || null);
+
+            if (effectiveParentId) {
                 newCategory = await categoriesService.createSubcategory(
-                    parseInt(parentId), 
+                    effectiveParentId,
                     dataToSend
                 );
             } else {
