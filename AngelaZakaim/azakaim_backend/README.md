@@ -1,415 +1,135 @@
-# Flask E-commerce API
+# Go2Market Backend - Flask E-Commerce REST API
 
 A full-featured e-commerce REST API built with Flask, featuring JWT authentication, role-based access control, shopping cart, and order management.
 
-## 📋 Table of Contents
+> For Docker setup and deployment instructions, see the [main project README](../README.md).
 
-- [Features](#features)
+## Table of Contents
+
 - [Tech Stack](#tech-stack)
-- [Quick Start with Docker](#-quick-start-with-docker)
-- [Local Development Setup](#-local-development-setup)
+- [Architecture](#architecture)
+- [Local Development Setup](#local-development-setup)
 - [Configuration](#configuration)
 - [API Documentation](#api-documentation)
 - [Authentication](#authentication)
+- [Products](#products)
+- [Categories](#categories)
+- [Cart](#cart)
+- [Orders](#orders)
+- [Users](#users)
 - [Role-Based Access Control](#role-based-access-control)
-- [Testing Your Deployment](#-testing-your-deployment)
 - [Testing with Postman](#testing-with-postman)
-- [Project Structure](#project-structure)
-- [Troubleshooting](#-troubleshooting)
+- [Troubleshooting](#troubleshooting)
+- [Security Best Practices](#security-best-practices)
 
-## ✨ Features
+---
 
-- **User Management**: Registration, authentication with JWT tokens
-- **Role-Based Access**: Admin, Manager, Cashier, and Customer roles
-- **Product Catalog**: Full CRUD operations with categories, search, and filtering
-- **Shopping Cart**: Add, update, remove items with automatic total calculations
-- **Order Management**: Create orders from cart, track status, manage payments
-- **Image Upload**: Secure product image upload with validation
-- **Security**: Password hashing, JWT tokens, role-based permissions
-
-## 🛠 Tech Stack
+## Tech Stack
 
 - **Framework**: Flask 3.0.0
-- **Database**: SQLite (dev) / PostgreSQL (production) / SQL Server (enterprise)
-- **Authentication**: Flask-JWT-Extended
-- **Validation**: Marshmallow
-- **Image Processing**: Pillow
-- **CORS**: Flask-CORS
-- **Rate Limiting**: Flask-Limiter
-- **Containerization**: Docker & Docker Compose
+- **ORM**: Flask-SQLAlchemy 3.1.1
+- **Migrations**: Flask-Migrate 4.0.5 (Alembic)
+- **Authentication**: Flask-JWT-Extended 4.5.3
+- **Validation**: Marshmallow 3.20.1
+- **Image Processing**: Pillow 12.1.0
+- **CORS**: Flask-CORS 4.0.0
+- **Rate Limiting**: Flask-Limiter 3.5.0
+- **Production Server**: Gunicorn 21.2.0
+- **Database**: SQLite (dev) / PostgreSQL (cloud) / SQL Server (enterprise Docker)
 
 ---
 
-## 🐳 Quick Start with Docker
+## Architecture
 
-### Prerequisites
+The backend follows a layered architecture pattern:
 
-- [Docker Desktop](https://www.docker.com/products/docker-desktop/) installed and running
-- Git (to clone the repository)
-
-### Step 1: Clone the Repository
-
-```bash
-git clone <repository-url>
-cd AngelaZakaim
+```
+Routes (Flask Blueprints)     <- HTTP request handling
+       |
+Services (Business Logic)    <- Core business rules
+       |
+Repositories (Data Access)   <- Database queries
+       |
+Models (SQLAlchemy ORM)      <- Entity definitions
+       |
+Database                     <- SQLite / PostgreSQL / SQL Server
 ```
 
-### Step 2: Clean Up Previous Docker Data (Optional)
+### Project Structure
 
-If you've run this project before and want a fresh start:
-
-```bash
-# Stop and remove all project containers, volumes, and images
-docker-compose -f docker-compose.dev.yml down -v --rmi local
-
-# Or for a complete Docker cleanup (removes ALL unused Docker data)
-docker system prune -a --volumes -f
 ```
-
-### Step 3: Update docker-compose.dev.yml
-
-Make sure the `DATABASE_URL` has the correct path (4 slashes for absolute path):
-
-```yaml
-environment:
-  - DATABASE_URL=sqlite:////app/instance/ecommerce_dev.db
-```
-
-### Step 4: Build and Start Containers
-
-```bash
-# Build and start all services
-docker-compose -f docker-compose.dev.yml up -d --build
-```
-
-### Step 5: Verify Containers are Running
-
-```bash
-# Check container status
-docker ps
-
-# You should see:
-# - ecommerce-backend-dev (port 5000)
-# - ecommerce-frontend-dev (port 5173)
-```
-
-### Step 6: Initialize the Database
-
-```bash
-# Initialize Flask-Migrate
-docker exec -it ecommerce-backend-dev flask db init
-
-# Create migration files
-docker exec -it ecommerce-backend-dev flask db migrate -m "initial_setup"
-
-# Apply migrations to create tables
-docker exec -it ecommerce-backend-dev flask db upgrade
-```
-
-### Step 7: Seed the Database (Optional but Recommended)
-
-```bash
-# Run the seed script to populate with test data
-docker exec -it ecommerce-backend-dev python seed_data_go2market.py
-```
-
-This creates:
-- 53 users (1 admin, 1 manager, 1 cashier, 50 customers)
-- 150 products across 13 categories
-- 100 sample orders
-
-### Step 8: Access the Application
-
-| Service | URL |
-|---------|-----|
-| Backend API | http://localhost:5000 |
-| Frontend | http://localhost:5173 |
-| API Health Check | http://localhost:5000/api/health |
-
----
-
-## 🔄 Docker Commands Reference
-
-### Starting and Stopping
-
-```bash
-# Start containers
-docker-compose -f docker-compose.dev.yml up -d
-
-# Stop containers (keeps data)
-docker-compose -f docker-compose.dev.yml down
-
-# Stop containers and remove volumes (deletes database)
-docker-compose -f docker-compose.dev.yml down -v
-
-# Restart containers
-docker-compose -f docker-compose.dev.yml restart
-```
-
-### Viewing Logs
-
-```bash
-# View all logs
-docker-compose -f docker-compose.dev.yml logs
-
-# View backend logs only
-docker-compose -f docker-compose.dev.yml logs backend
-
-# Follow logs in real-time
-docker-compose -f docker-compose.dev.yml logs -f backend
-```
-
-### Executing Commands in Container
-
-```bash
-# Open bash shell in backend container
-docker exec -it ecommerce-backend-dev bash
-
-# Run Flask shell (for debugging)
-docker exec -it ecommerce-backend-dev flask shell
-
-# Run a Python script
-docker exec -it ecommerce-backend-dev python your_script.py
-
-# Check environment variables
-docker exec -it ecommerce-backend-dev printenv DATABASE_URL
-```
-
-### Database Management
-
-```bash
-# Create new migration after model changes
-docker exec -it ecommerce-backend-dev flask db migrate -m "description of changes"
-
-# Apply migrations
-docker exec -it ecommerce-backend-dev flask db upgrade
-
-# Rollback last migration
-docker exec -it ecommerce-backend-dev flask db downgrade
-
-# View migration history
-docker exec -it ecommerce-backend-dev flask db history
-```
-
-### Rebuilding
-
-```bash
-# Rebuild after code changes (usually not needed due to volume mount)
-docker-compose -f docker-compose.dev.yml up -d --build
-
-# Force rebuild without cache
-docker-compose -f docker-compose.dev.yml build --no-cache
-docker-compose -f docker-compose.dev.yml up -d
-```
-
-### Complete Reset
-
-```bash
-# Nuclear option - complete fresh start
-docker-compose -f docker-compose.dev.yml down -v
-rmdir /s /q azakaim_backend\migrations   # Windows
-# rm -rf azakaim_backend/migrations      # Linux/Mac
-docker-compose -f docker-compose.dev.yml up -d --build
-docker exec -it ecommerce-backend-dev flask db init
-docker exec -it ecommerce-backend-dev flask db migrate -m "initial_setup"
-docker exec -it ecommerce-backend-dev flask db upgrade
-docker exec -it ecommerce-backend-dev python seed_data_go2market.py
+azakaim_backend/
+├── app/
+│   ├── __init__.py             # App factory (create_app)
+│   ├── extensions.py           # Flask extensions initialization
+│   ├── enums.py                # UserRole, OrderStatus, PaymentStatus, PaymentMethod
+│   ├── logging_config.py       # Logging configuration
+│   ├── schemas.py              # Marshmallow validation schemas
+│   ├── models/                 # SQLAlchemy ORM models
+│   │   ├── user.py             # User (base auth entity)
+│   │   ├── customer.py         # Customer profile
+│   │   ├── employee.py         # Employee profile
+│   │   ├── product.py          # Product catalog item
+│   │   ├── category.py         # Product category
+│   │   ├── cart.py              # Shopping cart
+│   │   ├── cart_item.py        # Cart line item
+│   │   ├── order.py            # Purchase order
+│   │   └── order_item.py       # Order line item
+│   ├── routes/                 # API endpoints (Flask Blueprints)
+│   │   ├── auth_routes.py      # /api/auth/*
+│   │   ├── user_routes.py      # /api/users/*
+│   │   ├── product_routes.py   # /api/products/*
+│   │   ├── category_routes.py  # /api/categories/*
+│   │   ├── cart_routes.py      # /api/cart/*
+│   │   └── order_routes.py     # /api/orders/*
+│   ├── services/               # Business logic layer
+│   │   ├── auth_service.py
+│   │   ├── user_service.py
+│   │   ├── product_service.py
+│   │   ├── category_service.py
+│   │   ├── cart_service.py
+│   │   └── order_service.py
+│   ├── repositories/           # Data access layer
+│   │   ├── user_repository.py
+│   │   ├── product_repository.py
+│   │   ├── category_repository.py
+│   │   ├── cart_repository.py
+│   │   ├── customer_repository.py
+│   │   ├── employee_repository.py
+│   │   └── order_repository.py
+│   ├── utils/                  # Utility modules
+│   │   ├── decorators.py       # Auth & role decorators
+│   │   ├── middleware.py
+│   │   ├── logger.py
+│   │   └── validators.py
+│   └── static/
+│       └── uploads/            # Uploaded product images
+├── migrations/                 # Auto-generated Alembic migrations
+├── instance/                   # SQLite database file (dev)
+├── config.py                   # Configuration classes (Dev/Prod/Test)
+├── run.py                      # Development entry point
+├── wsgi.py                     # Production WSGI entry point
+├── seed_data_go2market.py      # Database seeder
+├── Dockerfile                  # Production Docker image
+├── requirements.txt            # Production dependencies
+├── requirements-local.txt      # Local dev dependencies (no pyodbc)
+├── .env                        # Environment variables
+├── .env.example                # Environment template
+└── .env.production             # Production environment template
 ```
 
 ---
 
-## 🧪 Testing Your Deployment
-
-### Quick Commands to Test Your Docker Environment
-
-#### Step 1: Check Containers are Running
-
-```bash
-docker ps
-```
-
-You should see `ecommerce-backend-dev` and `ecommerce-frontend-dev` running.
-
-#### Step 2: Check Database URL is Correct
-
-```bash
-docker exec -it ecommerce-backend-dev printenv DATABASE_URL
-```
-
-Should show: `sqlite:////app/instance/ecommerce_dev.db`
-
-#### Step 3: Test API Health
-
-Open in browser or use curl:
-
-```bash
-curl http://localhost:5000/api/health
-```
-
-Or just open: **http://localhost:5000/api/products** in your browser.
-
-#### Step 4: Test Login (After Seeding)
-
-```bash
-curl -X POST http://localhost:5000/api/auth/login -H "Content-Type: application/json" -d "{\"email_or_username\": \"admin@ecommerce.com\", \"password\": \"Admin123!\"}"
-```
-
-If successful, you'll get back an `access_token`.
-
-#### Step 5: Test Products Endpoint
-
-```bash
-curl "http://localhost:5000/api/products?page=1&per_page=5"
-```
-
-#### Step 6: Check Frontend
-
-Open: **http://localhost:5173** in your browser.
-
-### Quick Summary Table
-
-| Test | Command/URL | Expected Result |
-|------|-------------|-----------------|
-| Containers running | `docker ps` | 2 containers listed |
-| Database URL | `docker exec -it ecommerce-backend-dev printenv DATABASE_URL` | `sqlite:////app/instance/ecommerce_dev.db` |
-| Backend API | http://localhost:5000/api/products | JSON with products |
-| Frontend | http://localhost:5173 | React app loads |
-| Login | POST to /api/auth/login | Returns access_token |
-
-> ✅ **Available Test URLs:**
-> - `http://localhost:5000/` - API info and available endpoints
-> - `http://localhost:5000/health` - Health check
-> - `http://localhost:5000/api` - Detailed API documentation
-> - `http://localhost:5000/api/products` - Get products
-> - `http://localhost:5000/api/categories` - Get categories
-> - `http://localhost:5000/api/auth/login` - Login endpoint
-
-### If Tests Fail
-
-If you get empty results or errors, the database might not be set up yet:
-
-```bash
-# Apply migrations
-docker exec -it ecommerce-backend-dev flask db upgrade
-
-# Seed the database with test data
-docker exec -it ecommerce-backend-dev python seed_data_go2market.py
-```
-
-Then test again:
-
-```bash
-curl "http://localhost:5000/api/products?page=1&per_page=5"
-```
-
-### Test Authentication Flow
-
-#### 1. Register a New User
-
-```bash
-curl -X POST http://localhost:5000/api/auth/register \
-  -H "Content-Type: application/json" \
-  -d '{
-    "email": "test@example.com",
-    "username": "testuser",
-    "password": "Test123!",
-    "role": "customer",
-    "first_name": "Test",
-    "last_name": "User",
-    "phone": "555-1234"
-  }'
-```
-
-#### 2. Login (Using Seeded Account)
-
-```bash
-curl -X POST http://localhost:5000/api/auth/login \
-  -H "Content-Type: application/json" \
-  -d '{
-    "email_or_username": "admin@ecommerce.com",
-    "password": "Admin123!"
-  }'
-```
-
-Save the `access_token` from the response for subsequent requests.
-
-#### 3. Test Protected Endpoint
-
-```bash
-curl http://localhost:5000/api/auth/me \
-  -H "Authorization: Bearer YOUR_ACCESS_TOKEN_HERE"
-```
-
-### Test API Endpoints
-
-#### Get Products (Public)
-
-```bash
-curl "http://localhost:5000/api/products?page=1&per_page=10"
-```
-
-#### Get Categories (Public)
-
-```bash
-curl http://localhost:5000/api/categories
-```
-
-#### Get Orders (Requires Auth)
-
-```bash
-curl http://localhost:5000/api/orders \
-  -H "Authorization: Bearer YOUR_ACCESS_TOKEN_HERE"
-```
-
-### Test Accounts (After Seeding)
-
-| Role | Email | Password |
-|------|-------|----------|
-| Admin | admin@ecommerce.com | Admin123! |
-| Manager | manager@ecommerce.com | Manager123! |
-| Cashier | cashier@ecommerce.com | Cashier123! |
-| Customer | customer1@email.com | Customer123! |
-| Customer | customer2@email.com | Customer123! |
-| ... | customer3-50@email.com | Customer123! |
-
-### Pagination Testing
-
-The seeded database includes 150 products and 100 orders for testing pagination:
-
-```bash
-# First page of products
-curl "http://localhost:5000/api/products?page=1&per_page=20"
-
-# Second page
-curl "http://localhost:5000/api/products?page=2&per_page=20"
-
-# Last page (should have fewer items)
-curl "http://localhost:5000/api/products?page=8&per_page=20"
-
-# Test different page sizes
-curl "http://localhost:5000/api/products?page=1&per_page=50"
-```
-
-### Using Postman
-
-1. Import the Postman collection (if provided)
-2. Set environment variable `base_url` = `http://localhost:5000`
-3. Run "Login" request first (tokens are auto-saved)
-4. Test other endpoints
-
----
-
-## 💻 Local Development Setup
+## Local Development Setup
 
 ### Prerequisites
 
 - Python 3.8+
-- pip (Python package manager)
+- pip
 
-### 1. Clone and Setup Virtual Environment
+### 1. Create Virtual Environment
 
 ```bash
-git clone <repository-url>
 cd azakaim_backend
 
 # Windows
@@ -433,7 +153,7 @@ pip install -r requirements.txt
 
 ### 3. Configure Environment
 
-Create a `.env` file:
+Copy `.env.example` to `.env` and adjust values:
 
 ```env
 FLASK_APP=run.py
@@ -463,25 +183,26 @@ python seed_data_go2market.py
 python run.py
 ```
 
-The API will be available at `http://localhost:5000`
+The API will be available at `http://localhost:5000`.
 
 ---
 
-## ⚙️ Configuration
+## Configuration
 
 ### Environment Variables
 
 | Variable | Description | Default |
 |----------|-------------|---------|
-| `FLASK_ENV` | Environment (development/production) | development |
+| `FLASK_ENV` | Environment (development/production/testing) | development |
 | `SECRET_KEY` | Flask secret key | (required) |
 | `DATABASE_URL` | Database connection string | sqlite:///instance/ecommerce_dev.db |
 | `JWT_SECRET_KEY` | JWT signing key | (required) |
 | `JWT_ACCESS_TOKEN_EXPIRES` | Access token TTL (seconds) | 3600 |
 | `JWT_REFRESH_TOKEN_EXPIRES` | Refresh token TTL (seconds) | 2592000 |
-| `CORS_ORIGINS` | Allowed CORS origins | * |
+| `CORS_ORIGINS` | Allowed CORS origins (comma-separated) | * |
 | `DEFAULT_PAGE_SIZE` | Default pagination size | 20 |
 | `MAX_PAGE_SIZE` | Maximum pagination size | 100 |
+| `PORT` | Server port | 5000 |
 
 ### Database URL Formats
 
@@ -493,13 +214,13 @@ DATABASE_URL=sqlite:///instance/ecommerce_dev.db       # Local (relative path)
 # PostgreSQL (Production - Render/Heroku)
 DATABASE_URL=postgresql://user:password@host:5432/database
 
-# SQL Server (Enterprise)
+# SQL Server (Enterprise / Docker Production)
 DATABASE_URL=mssql+pyodbc://user:password@host:1433/database?driver=ODBC+Driver+18+for+SQL+Server
 ```
 
 ---
 
-## 📚 API Documentation
+## API Documentation
 
 ### Base URL
 
@@ -527,17 +248,26 @@ All responses follow this structure:
 }
 ```
 
+### Status Codes
+
+| Code | Meaning | Description |
+|------|---------|-------------|
+| 200 | OK | Request successful |
+| 201 | Created | Resource created successfully |
+| 400 | Bad Request | Invalid request data |
+| 401 | Unauthorized | Authentication required or failed |
+| 403 | Forbidden | Insufficient permissions |
+| 404 | Not Found | Resource not found |
+| 500 | Internal Server Error | Server error occurred |
+
 ---
 
-## 🔐 Authentication
+## Authentication
 
-### 1. Register User
+### Register User
 
 **POST** `/api/auth/register`
 
-Create a new user account.
-
-**Request Body:**
 ```json
 {
   "email": "customer@example.com",
@@ -573,13 +303,10 @@ Create a new user account.
 }
 ```
 
-### 2. Login
+### Login
 
 **POST** `/api/auth/login`
 
-Authenticate and receive JWT tokens.
-
-**Request Body:**
 ```json
 {
   "email_or_username": "customer@example.com",
@@ -601,11 +328,9 @@ Authenticate and receive JWT tokens.
 }
 ```
 
-### 3. Refresh Token
+### Refresh Token
 
 **POST** `/api/auth/refresh`
-
-Get new access token using refresh token.
 
 **Headers:**
 ```
@@ -619,11 +344,9 @@ Authorization: Bearer <refresh_token>
 }
 ```
 
-### 4. Get Current User
+### Get Current User
 
 **GET** `/api/auth/me`
-
-Get current authenticated user information.
 
 **Headers:**
 ```
@@ -649,13 +372,11 @@ Authorization: Bearer <access_token>
 
 ---
 
-## 🛍️ Products
+## Products
 
-### 1. Get All Products
+### Get All Products
 
 **GET** `/api/products`
-
-Retrieve products with pagination and filters.
 
 **Query Parameters:**
 - `page` (int, default: 1)
@@ -695,18 +416,11 @@ GET /api/products?page=1&per_page=20&category_id=1
 }
 ```
 
-### 2. Search Products
-
-Search by ID, SKU, slug, barcode, or name.
+### Search Products
 
 **GET** `/api/products?search_type=<type>&search_value=<value>`
 
-**Search Types:**
-- `id` - Search by product ID
-- `sku` - Search by SKU
-- `slug` - Search by URL slug
-- `barcode` - Search by barcode
-- `name` - Search by product name
+**Search Types:** `id`, `sku`, `slug`, `barcode`, `name`
 
 **Examples:**
 ```
@@ -715,11 +429,9 @@ GET /api/products?search_type=name&search_value=laptop
 GET /api/products?search_type=slug&search_value=gaming-laptop
 ```
 
-### 3. Upload Product Image
+### Upload Product Image
 
 **POST** `/api/products/upload-image`
-
-Upload a product image. Returns image URL.
 
 **Content-Type:** `multipart/form-data`
 
@@ -733,13 +445,10 @@ Upload a product image. Returns image URL.
 }
 ```
 
-### 4. Create Product
+### Create Product
 
-**POST** `/api/products/add`
+**POST** `/api/products/add` _(Manager+ required)_
 
-Create a new product.
-
-**Request Body:**
 ```json
 {
   "name": "New Product",
@@ -760,17 +469,113 @@ Create a new product.
 
 ---
 
-## 🔒 Role-Based Access Control
+## Categories
+
+### Get All Categories
+
+**GET** `/api/categories`
+
+### Get Category by ID
+
+**GET** `/api/categories/<id>`
+
+### Create Category
+
+**POST** `/api/categories` _(Manager+ for subcategories, Admin for top-level)_
+
+### Update Category
+
+**PUT** `/api/categories/<id>` _(Manager+ required)_
+
+### Delete Category
+
+**DELETE** `/api/categories/<id>` _(Admin required)_
+
+---
+
+## Cart
+
+### Get User's Cart
+
+**GET** `/api/cart` _(Auth required)_
+
+### Add Item to Cart
+
+**POST** `/api/cart/add` _(Auth required)_
+
+### Update Cart Item Quantity
+
+**PUT** `/api/cart/update` _(Auth required)_
+
+### Remove Item from Cart
+
+**DELETE** `/api/cart/remove/<item_id>` _(Auth required)_
+
+### Clear Entire Cart
+
+**DELETE** `/api/cart/clear` _(Auth required)_
+
+---
+
+## Orders
+
+### List User's Orders
+
+**GET** `/api/orders` _(Auth required)_
+
+### Get Order Details
+
+**GET** `/api/orders/<id>` _(Auth required)_
+
+### Create Order from Cart
+
+**POST** `/api/orders` _(Auth required)_
+
+### Update Order Status
+
+**PUT** `/api/orders/<id>` _(Staff required)_
+
+### Get Order Items
+
+**GET** `/api/orders/<id>/items` _(Auth required)_
+
+---
+
+## Users
+
+### Get User Profile
+
+**GET** `/api/users/profile` _(Auth required)_
+
+### Update User Profile
+
+**PUT** `/api/users/profile` _(Auth required)_
+
+### List All Users
+
+**GET** `/api/users` _(Admin required)_
+
+### Get User by ID
+
+**GET** `/api/users/<id>` _(Admin required)_
+
+### Delete User
+
+**DELETE** `/api/users/<id>` _(Admin required)_
+
+---
+
+## Role-Based Access Control
 
 ### Roles Hierarchy
 
 ```
 Admin (Full Access)
-  ↓
+  |
 Manager (Manage operations, view reports)
-  ↓
+  |
 Cashier (Process orders, view today's data)
-  ↓
+  |
 Customer (Shopping, cart, own orders)
 ```
 
@@ -779,47 +584,46 @@ Customer (Shopping, cart, own orders)
 | Endpoint | Customer | Cashier | Manager | Admin |
 |----------|----------|---------|---------|-------|
 | **Products** |
-| View Products | ✓ | ✓ | ✓ | ✓ |
-| Create Product | ✗ | ✗ | ✓ | ✓ |
-| Update Product | ✗ | ✗ | ✓ | ✓ |
-| Delete Product | ✗ | ✗ | ✗ | ✓ |
+| View Products | Y | Y | Y | Y |
+| Create Product | - | - | Y | Y |
+| Update Product | - | - | Y | Y |
+| Delete Product | - | - | - | Y |
 | **Categories** |
-| View Categories | ✓ | ✓ | ✓ | ✓ |
-| Create Top Category | ✗ | ✗ | ✗ | ✓ |
-| Create Subcategory | ✗ | ✗ | ✓ | ✓ |
-| Update Category | ✗ | ✗ | ✓ | ✓ |
-| Delete Category | ✗ | ✗ | ✗ | ✓ |
+| View Categories | Y | Y | Y | Y |
+| Create Top Category | - | - | - | Y |
+| Create Subcategory | - | - | Y | Y |
+| Update Category | - | - | Y | Y |
+| Delete Category | - | - | - | Y |
 | **Cart** |
-| Manage Own Cart | ✓ | ✓ | ✓ | ✓ |
+| Manage Own Cart | Y | Y | Y | Y |
 | **Orders** |
-| Create Order | ✓ | ✓ | ✓ | ✓ |
-| View Own Orders | ✓ | ✗ | ✗ | ✗ |
-| Cancel Own Order | ✓ | ✗ | ✗ | ✗ |
-| View Today's Orders | ✗ | ✓ | ✓ | ✓ |
-| Update Order Status | ✗ | ✓ | ✓ | ✓ |
-| View All Orders | ✗ | ✗ | ✓* | ✓ |
-| Process Refund | ✗ | ✗ | ✗ | ✓ |
-| Delete Order | ✗ | ✗ | ✗ | ✓ |
+| Create Order | Y | Y | Y | Y |
+| View Own Orders | Y | - | - | - |
+| Cancel Own Order | Y | - | - | - |
+| View Today's Orders | - | Y | Y | Y |
+| Update Order Status | - | Y | Y | Y |
+| View All Orders | - | - | Y* | Y |
+| Process Refund | - | - | - | Y |
+| Delete Order | - | - | - | Y |
 | **Users** |
-| View Own Profile | ✓ | ✓ | ✓ | ✓ |
-| Update Own Profile | ✓ | ✓ | ✓ | ✓ |
-| View Customers | ✗ | ✗ | ✓ | ✓ |
-| View Employees | ✗ | ✗ | ✓ | ✓ |
-| Manage Users | ✗ | ✗ | ✗ | ✓ |
-| Change Roles | ✗ | ✗ | ✗ | ✓ |
+| View Own Profile | Y | Y | Y | Y |
+| Update Own Profile | Y | Y | Y | Y |
+| View Customers | - | - | Y | Y |
+| View Employees | - | - | Y | Y |
+| Manage Users | - | - | - | Y |
+| Change Roles | - | - | - | Y |
 
 *Manager can view last 30 days only
 
 ---
 
-## 🧪 Testing with Postman
+## Testing with Postman
 
 ### 1. Import Collection
 
 1. Download `Flask_Ecommerce_API.postman_collection.json`
 2. Open Postman
-3. Click **Import** → Select file
-4. Collection will be imported with all endpoints
+3. Click **Import** and select the file
 
 ### 2. Set Up Environment
 
@@ -828,116 +632,77 @@ The collection includes these variables:
 - `access_token` - JWT access token (auto-set on login)
 - `refresh_token` - JWT refresh token (auto-set on login)
 
-### 3. Quick Start Testing
+### 3. Quick Start
 
-**Step 1: Register a User**
-```
-POST /api/auth/register
-```
-Create accounts for different roles (customer, manager, cashier).
-
-**Step 2: Login**
-```
-POST /api/auth/login
-```
-Login saves tokens automatically to environment variables.
-
-**Step 3: Test Endpoints**
-
-All subsequent requests will use the saved access token automatically.
+1. **Register** - `POST /api/auth/register` - Create accounts for different roles
+2. **Login** - `POST /api/auth/login` - Tokens are auto-saved
+3. **Test** - All subsequent requests use the saved access token
 
 ### 4. Test Different Roles
 
-To test role-based permissions:
+1. Login as customer - Test shopping endpoints
+2. Login as cashier - Test staff endpoints
+3. Login as manager - Test management endpoints
+4. Login as admin - Test admin endpoints
 
-1. Register/login as customer → Test customer endpoints
-2. Register/login as cashier → Test staff endpoints
-3. Login as manager → Test manager endpoints
-4. Login as admin → Test admin endpoints
+### Quick Curl Tests
 
----
+```bash
+# Register a new user
+curl -X POST http://localhost:5000/api/auth/register \
+  -H "Content-Type: application/json" \
+  -d '{"email": "test@example.com", "username": "testuser", "password": "Test123!", "role": "customer", "first_name": "Test", "last_name": "User", "phone": "555-1234"}'
 
-## 📂 Project Structure
+# Login
+curl -X POST http://localhost:5000/api/auth/login \
+  -H "Content-Type: application/json" \
+  -d '{"email_or_username": "admin@ecommerce.com", "password": "Admin123!"}'
 
-```
-AngelaZakaim/
-├── docker-compose.dev.yml      # Docker development config
-├── azakaim_backend/
-│   ├── app/
-│   │   ├── __init__.py         # App factory
-│   │   ├── extensions.py       # Flask extensions
-│   │   ├── enums.py            # Enums (roles, statuses)
-│   │   ├── models/             # Database models
-│   │   │   ├── user.py
-│   │   │   ├── customer.py
-│   │   │   ├── employee.py
-│   │   │   ├── product.py
-│   │   │   ├── category.py
-│   │   │   ├── cart.py
-│   │   │   ├── cart_item.py
-│   │   │   ├── order.py
-│   │   │   └── order_item.py
-│   │   ├── routes/             # API routes
-│   │   │   ├── auth_routes.py
-│   │   │   ├── user_routes.py
-│   │   │   ├── product_routes.py
-│   │   │   ├── category_routes.py
-│   │   │   ├── cart_routes.py
-│   │   │   └── order_routes.py
-│   │   ├── services/           # Business logic
-│   │   ├── repositories/       # Database operations
-│   │   ├── schemas/            # Marshmallow schemas
-│   │   ├── utils/              # Utilities & decorators
-│   │   └── static/             # Static files
-│   │       └── uploads/        # Uploaded images
-│   ├── migrations/             # Database migrations (auto-generated)
-│   ├── instance/               # SQLite database (Docker volume)
-│   ├── .env                    # Environment variables
-│   ├── Dockerfile              # Backend Docker image
-│   ├── requirements.txt        # Production dependencies
-│   ├── requirements-local.txt  # Local dev dependencies
-│   ├── config.py               # Flask configuration
-│   ├── run.py                  # Application entry point
-│   ├── wsgi.py                 # WSGI entry point (production)
-│   └── seed_data_go2market.py  # Database seeder
-└── azakaim_frontend/
-    ├── Dockerfile.dev          # Frontend Docker image
-    ├── src/                    # React source code
-    └── ...
+# Access protected endpoint
+curl http://localhost:5000/api/auth/me \
+  -H "Authorization: Bearer YOUR_ACCESS_TOKEN_HERE"
+
+# Get products (public)
+curl "http://localhost:5000/api/products?page=1&per_page=10"
+
+# Get categories (public)
+curl http://localhost:5000/api/categories
+
+# Get orders (auth required)
+curl http://localhost:5000/api/orders \
+  -H "Authorization: Bearer YOUR_ACCESS_TOKEN_HERE"
 ```
 
 ---
 
-## 🔧 Troubleshooting
+## Troubleshooting
 
-### Issue: "unable to open database file"
+### "unable to open database file"
 
 **Cause:** Incorrect DATABASE_URL path
 
-**Solution:**
+**Fix:** Use absolute path with 4 slashes in Docker:
 ```yaml
-# In docker-compose.dev.yml, use absolute path (4 slashes):
 DATABASE_URL=sqlite:////app/instance/ecommerce_dev.db
 ```
 
-### Issue: "Directory migrations already exists"
+### "Directory migrations already exists"
 
 **Cause:** Running `flask db init` when migrations folder exists
 
-**Solution:**
+**Fix:**
 ```bash
-# Skip init and run migrate directly
-docker exec -it ecommerce-backend-dev flask db migrate -m "your_message"
-docker exec -it ecommerce-backend-dev flask db upgrade
+# Skip init, run migrate directly
+flask db migrate -m "your_message"
+flask db upgrade
 
 # Or delete and start fresh
-docker exec -it ecommerce-backend-dev rm -rf /app/migrations
-docker exec -it ecommerce-backend-dev flask db init
+rm -rf migrations/
+flask db init
 ```
 
-### Issue: Container won't start
+### Container won't start
 
-**Solution:**
 ```bash
 # Check logs
 docker-compose -f docker-compose.dev.yml logs backend
@@ -946,47 +711,34 @@ docker-compose -f docker-compose.dev.yml logs backend
 docker exec -it ecommerce-backend-dev printenv DATABASE_URL
 ```
 
-### Issue: Database Connection Error (PostgreSQL)
+### Database Connection Error (PostgreSQL)
 
-**Error:** `OperationalError: could not connect to server`
-
-**Solution:**
 1. Check PostgreSQL is running: `sudo service postgresql status`
 2. Verify database credentials in `.env`
 3. Ensure database exists: `psql -U postgres -c "\l"`
 
-### Issue: JWT Token Expired
+### JWT Token Expired
 
-**Error:** `401 Unauthorized - Token has expired`
-
-**Solution:**
-Use the refresh token endpoint to get a new access token:
+Use the refresh token endpoint:
 ```
 POST /api/auth/refresh
 Authorization: Bearer <refresh_token>
 ```
 
-### Issue: Image Upload Fails
+### Image Upload Fails (413)
 
-**Error:** `413 Request Entity Too Large`
+Check `MAX_CONTENT_LENGTH` in `.env` (default: 5MB).
 
-**Solution:**
-Check `MAX_CONTENT_LENGTH` in `.env` (default: 5MB)
+### Permission Denied (403)
 
-### Issue: Permission Denied
+- Verify you're logged in with the correct role
+- Check the permission matrix above
+- Admin account may be required for the operation
 
-**Error:** `403 Forbidden - Insufficient permissions`
+### Changes not reflecting in container
 
-**Solution:**
-- Verify you're logged in with correct role
-- Check role permissions in documentation
-- Admin account may be required
-
-### Issue: Changes not reflecting in container
-
-**Solution:**
 ```bash
-# Volume mounts should auto-sync, but if not:
+# Restart (volume mounts should auto-sync)
 docker-compose -f docker-compose.dev.yml restart backend
 
 # Or rebuild
@@ -995,89 +747,14 @@ docker-compose -f docker-compose.dev.yml up -d --build
 
 ---
 
-## 📝 API Status Codes
+## Security Best Practices
 
-| Code | Meaning | Description |
-|------|---------|-------------|
-| 200 | OK | Request successful |
-| 201 | Created | Resource created successfully |
-| 400 | Bad Request | Invalid request data |
-| 401 | Unauthorized | Authentication required or failed |
-| 403 | Forbidden | Insufficient permissions |
-| 404 | Not Found | Resource not found |
-| 500 | Internal Server Error | Server error occurred |
-
----
-
-## 🔐 Security Best Practices
-
-1. **Environment Variables**: Never commit `.env` file to version control
-2. **JWT Secrets**: Use strong, random secrets in production
-3. **Password Policy**: Enforce minimum 8 characters
-4. **HTTPS**: Always use HTTPS in production
-5. **CORS**: Configure allowed origins properly
-6. **Rate Limiting**: Implement rate limiting on sensitive endpoints
-7. **Input Validation**: All inputs are validated using Marshmallow schemas
-8. **SQL Injection**: Protected by SQLAlchemy ORM
-9. **Image Upload**: Files validated for type and size
-
----
-
-## 🚀 Production Deployment
-
-### Environment Variables for Production
-
-```env
-FLASK_ENV=production
-SECRET_KEY=<strong-random-key>
-JWT_SECRET_KEY=<strong-random-key>
-DATABASE_URL=postgresql://user:password@host:5432/database
-```
-
-### Deploy to Render/Heroku
-
-1. Push code to GitHub
-2. Connect repository to Render/Heroku
-3. Set environment variables
-4. Deploy
-
-### Using Docker in Production
-
-```bash
-# Build production image
-docker build -t flask-ecommerce .
-
-# Run with production settings
-docker run -p 5000:5000 \
-  -e FLASK_ENV=production \
-  -e DATABASE_URL=postgresql://... \
-  -e SECRET_KEY=your-secret \
-  -e JWT_SECRET_KEY=your-jwt-secret \
-  flask-ecommerce
-```
-
----
-
-## 📞 Support
-
-For issues or questions:
-1. Check this README
-2. Review API documentation above
-3. Test with Postman collection
-4. Check application logs: `docker-compose logs backend`
-
----
-
-## 📄 License
-
-[Your License Here]
-
----
-
-## 👥 Contributors
-
-[Your Name/Team]
-
----
-
-**Last Updated:** February 2026
+1. **Environment Variables** - Never commit `.env` to version control
+2. **JWT Secrets** - Use strong, random secrets in production
+3. **Password Policy** - Enforce minimum 8 characters
+4. **HTTPS** - Always use HTTPS in production
+5. **CORS** - Configure allowed origins properly
+6. **Rate Limiting** - Implement rate limiting on sensitive endpoints
+7. **Input Validation** - All inputs validated using Marshmallow schemas
+8. **SQL Injection** - Protected by SQLAlchemy ORM
+9. **Image Upload** - Files validated for type and size (5MB max)
