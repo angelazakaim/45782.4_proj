@@ -2,8 +2,7 @@ import uuid
 from decimal import Decimal
 from app.repositories.order_repository import OrderRepository
 from app.repositories.cart_repository import CartRepository
-from app.repositories.product_repository import ProductRepository
-from app.repositories.customer_repository import CustomerRepository
+from app.extensions import db
 from app.enums import OrderStatus, PaymentStatus, PaymentMethod
 
 
@@ -59,7 +58,9 @@ class OrderService:
         # Add items to order and update stock
         for cart_item in cart.items:
             OrderRepository.add_item(order, cart_item.product, cart_item.quantity)
-            ProductRepository.update_stock(cart_item.product, -cart_item.quantity)
+            product = cart_item.product
+            product.stock_quantity = product.stock_quantity - cart_item.quantity
+            db.session.commit()
         
         # Clear cart
         CartRepository.clear_cart(cart)
@@ -98,13 +99,15 @@ class OrderService:
         if status == OrderStatus.CANCELLED.value and order.status not in [OrderStatus.CANCELLED.value, OrderStatus.REFUNDED.value]:
             # Restore stock
             for item in order.items:
-                ProductRepository.update_stock(item.product, item.quantity)
-        
+                item.product.stock_quantity = item.product.stock_quantity + item.quantity
+            db.session.commit()
+
         # Handle refund - restore stock if not already cancelled
         if status == OrderStatus.REFUNDED.value and order.status != OrderStatus.CANCELLED.value:
             # Restore stock
             for item in order.items:
-                ProductRepository.update_stock(item.product, item.quantity)
+                item.product.stock_quantity = item.product.stock_quantity + item.quantity
+            db.session.commit()
         
         return OrderRepository.update_status(order, status)
     
@@ -161,7 +164,8 @@ class OrderService:
         
         # Restore inventory
         for item in order.items:
-            ProductRepository.update_stock(item.product, item.quantity)
+            item.product.stock_quantity = item.product.stock_quantity + item.quantity
+        db.session.commit()
         
         # Add cancellation note
         if reason:

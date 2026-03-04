@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import "./Checkout.css";
@@ -8,6 +8,7 @@ import { ordersService } from "../../../Services/OrdersService";
 import { clearCartAction } from "../../../Redux/CartsSlice";
 import { useForceLoggedUser } from "../../../Utils/forceLoggedInHook";
 import store from "../../../Redux/store";
+import { notificationService } from "../../../Services/NotificationService";
 
 const PAYMENT_METHODS = ["credit_card", "debit_card", "paypal", "bank_transfer"];
 
@@ -30,6 +31,7 @@ export function Checkout() {
     const [paymentMethod, setPaymentMethod] = useState("credit_card");
     const [notes, setNotes]                 = useState("");
     const [submitting, setSubmitting]       = useState(false);
+    const [syncStatus, setSyncStatus]       = useState<"syncing" | "done" | "error">("syncing");
 
     // ── Sync local cart → server ──────────────────────────────────────
     // createOrder reads the SERVER cart, not Redux.  A guest who added items
@@ -38,20 +40,36 @@ export function Checkout() {
     // double-count, then pushes every local item.  Each item is attempted
     // independently — if one fails (e.g. out of stock) the rest still sync
     // and the failed item stays visible in the local cart.
+    const didSync = useRef(false);
     useEffect(() => {
+        if (didSync.current) return;        // guard against StrictMode double-fire
+        didSync.current = true;
+
         (async () => {
             try {
                 await axios.post(`${config.CART_API_URL}/clear`);
 
+                let synced = 0;
                 for (const item of cartItems) {
                     try {
                         await axios.post(`${config.CART_API_URL}/items`, {
                             product_id: item.product_id,
                             quantity:   item.quantity,
                         });
-                    } catch { /* non-fatal */ }
+                        synced++;
+                    } catch { /* non-fatal – other items may still sync */ }
                 }
-            } catch { /* if clear itself fails, createOrder will use whatever server cart exists */ }
+
+                if (synced === 0 && cartItems.length > 0) {
+                    setSyncStatus("error");
+                    notificationService.error("Could not sync cart items — products may be unavailable.");
+                } else {
+                    setSyncStatus("done");
+                }
+            } catch {
+                setSyncStatus("error");
+                notificationService.error("Failed to prepare your cart for checkout.");
+            }
         })();
     }, []);                                 // runs once when checkout mounts
 
@@ -141,8 +159,11 @@ export function Checkout() {
                     </div>
 
                     {/* submit */}
-                    <button className="checkout-submit-btn" onClick={handleSubmit} disabled={submitting}>
-                        {submitting ? "Placing order…" : "Place Order"}
+                    <button className="checkout-submit-btn" onClick={handleSubmit} disabled={submitting || syncStatus !== "done"}>
+                        {syncStatus === "syncing" ? "Preparing cart…"
+                            : syncStatus === "error" ? "Cart sync failed"
+                            : submitting ? "Placing order…"
+                            : "Place Order"}
                     </button>
                 </div>
 
